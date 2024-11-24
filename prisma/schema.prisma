@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum User_Role {
+  USER
+  ADMIN
+}
+
+enum Task_Level {
+  EASY
+  MEDIUM
+  HARD
+  EXTREME
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  email           String            @unique
+  firstName       String
+  lastName        String?
+  hash            String
+  role            User_Role         @default(USER)
+  image           String?
+  projects        Project[]         @relation("UserProjects")
+  adminProjects   Project[]         @relation("AdminProjects")
+  isActive        Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  UsersOnProjects UsersOnProjects[]
+
+  @@map("users")
+}
+
+model Project {
+  id              Int               @id @default(autoincrement())
+  title           String            @unique
+  image           String?
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean           @default(true)
+  tasks           Task[]
+  users           User[]            @relation("UserProjects")
+  admin           User              @relation("AdminProjects", fields: [adminId], references: [id])
+  adminId         Int
+  UsersOnProjects UsersOnProjects[]
+
+  @@map("projects")
+}
+
+model UsersOnProjects {
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+
+  @@id([userId, projectId])
+}
+
+model Board {
+  id    Int    @id @default(autoincrement())
+  title String
+  Task  Task[]
+  order Int?
+  theme Json
+
+  @@map("boards")
+}
+
+model Task {
+  id          Int         @id @default(autoincrement())
+  title       String      @unique
+  description String?
+  endDate     DateTime
+  level       Task_Level?
+  project     Project     @relation(fields: [projectId], references: [id])
+  projectId   Int
+  board       Board       @relation(fields: [boardId], references: [id])
+  boardId     Int
+  order       Int?
+
+  @@map("tasks")
+}
