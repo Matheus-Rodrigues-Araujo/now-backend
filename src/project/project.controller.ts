@@ -12,7 +12,7 @@ import {
 import { ProjectService } from './project.service';
 import { Project } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { CreateProjectDto } from './dto';
+import { AddUsersToProjectDto, CreateProjectDto } from './dto';
 
 @Controller('projects')
 @UseGuards(AuthGuard)
@@ -30,10 +30,29 @@ export class ProjectController {
   }
 
   @Post()
-  async create(@Body() project: CreateProjectDto, @Request() req: any): Promise<Project> {
-    const { sub } = req.user
+  async createAdminProject(
+    @Body() project: CreateProjectDto,
+    @Request() req: any,
+  ): Promise<Project> {
+    const { sub } = req.user;
 
-    return await this.projectService.create(sub, project);
+    return await this.projectService.createAdminProject(sub, project);
+  }
+
+  @Post(':projectId/users')
+  async addUsersToProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Request()
+    req: { user: { firstName: string; lastName?: string; sub: number } },
+    @Body() body: AddUsersToProjectDto,
+  ) {
+    const { usersIds } = body;
+    const { sub } = req.user;
+    return await this.projectService.addUsersOnProject(
+      projectId,
+      sub,
+      usersIds,
+    );
   }
 
   @Delete(':id')

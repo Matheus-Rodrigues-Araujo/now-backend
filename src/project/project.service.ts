@@ -32,7 +32,10 @@ export class ProjectService {
     return project;
   }
 
-  async create(id: number, project: CreateProjectDto): Promise<Project> {
+  async createAdminProject(
+    adminId: number,
+    project: CreateProjectDto,
+  ): Promise<Project> {
     const newProject = await this.prismaService.project.create({
       data: {
         title: project.title,
@@ -40,9 +43,9 @@ export class ProjectService {
         startDate: project.startDate,
         endDate: project.startDate,
         isActive: project.isActive,
-        adminId: id,
+        adminId: adminId,
         users: {
-          connect: { id: id },
+          connect: { id: adminId },
         },
       },
     });
@@ -50,6 +53,49 @@ export class ProjectService {
     if (!newProject) throw new BadRequestException('Project not created');
 
     return newProject;
+  }
+
+  async addUsersOnProject(
+    projectId: number,
+    adminId: number,
+    usersIds: number[],
+  ) {
+    const project = await this.prismaService.project.findUnique({
+      where: { id: projectId },
+      include: { admin: true },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    if (project.adminId !== adminId) {
+      throw new UnauthorizedException("You don't have permission!");
+    }
+
+    if (usersIds.length < 1) throw new NotFoundException('Data not found');
+
+    if (usersIds.indexOf(adminId) !== -1)
+      throw new BadRequestException('Admin cannot be added as a regular user');
+
+    try {
+      if (!Array.isArray(usersIds)) {
+        throw new Error('usersId must be an array');
+      }
+
+      await this.prismaService.usersOnProjects.createMany({
+        data: usersIds.map((userId) => ({
+          userId: userId,
+          projectId: projectId,
+        })),
+        skipDuplicates: true,
+      });
+
+      return { message: 'Users added to project successfully' };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('Error adding users to the project');
+    }
   }
 
   // verify admin permission asap
