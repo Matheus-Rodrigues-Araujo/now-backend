@@ -23,6 +23,52 @@ export class ProjectService {
     }
   }
 
+  async findProjectMembers(projectId: number, userId: number) {
+    try {
+      const project = await this.prismaService.project.findFirst({
+        where: {
+          id: projectId,
+          OR: [
+            { adminId: userId },
+            {
+              UsersOnProjects: {
+                some: {
+                  userId: userId,
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          UsersOnProjects: {
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                  role: true,
+                  isActive: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!project) throw new UnauthorizedException('Access denied');
+
+      return project.UsersOnProjects.map(
+        (usersOnProject) => usersOnProject.user,
+      );
+    } catch (error) {
+      console.error('ERROR: could not find members', error);
+      throw new BadRequestException('Faild to fetch project members');
+    }
+  }
+
+  // usuário quer buscar um projeto que ele está relacionado, seja um usuário ou admin
+  // adicionar filtragem por título
   async findOne(id: number): Promise<Project> {
     const project = await this.prismaService.project.findUnique({
       where: { id },
@@ -125,6 +171,7 @@ export class ProjectService {
   }
 
   // verify admin permission
+  // create transaction to remove all related data
   async delete(id: number): Promise<void> {
     await this.prismaService.project.delete({ where: { id } });
   }

@@ -13,6 +13,7 @@ import { ProjectService } from './project.service';
 import { Project } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AddUsersToProjectDto, CreateProjectDto } from './dto';
+import { AuthenticateRequest } from 'src/types';
 
 @Controller('projects')
 @UseGuards(AuthGuard)
@@ -32,18 +33,26 @@ export class ProjectController {
   @Post()
   async createAdminProject(
     @Body() project: CreateProjectDto,
-    @Request() req: any,
+    @Request() req: AuthenticateRequest,
   ): Promise<Project> {
     const { sub } = req.user;
 
     return await this.projectService.createAdminProject(sub, project);
   }
 
+  @Get(':projectId/users')
+  async findProjectMembers(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Request() req: AuthenticateRequest,
+  ) {
+    const { sub } = req.user;
+    return await this.projectService.findProjectMembers(projectId, sub);
+  }
+
   @Post(':projectId/users')
   async addUsersToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Request()
-    req: { user: { firstName: string; lastName?: string; sub: number } },
+    @Request() req: AuthenticateRequest,
     @Body() body: AddUsersToProjectDto,
   ) {
     const { usersIds } = body;
