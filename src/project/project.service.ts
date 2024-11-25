@@ -55,7 +55,7 @@ export class ProjectService {
     return newProject;
   }
 
-  async addUsersOnProject(
+  async addUsersToProject(
     projectId: number,
     adminId: number,
     usersIds: number[],

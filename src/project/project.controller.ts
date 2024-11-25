@@ -48,7 +48,7 @@ export class ProjectController {
   ) {
     const { usersIds } = body;
     const { sub } = req.user;
-    return await this.projectService.addUsersOnProject(
+    return await this.projectService.addUsersToProject(
       projectId,
       sub,
       usersIds,
