@@ -24,47 +24,45 @@ export class ProjectService {
   }
 
   async findProjectMembers(projectId: number, userId: number) {
-    try {
-      const project = await this.prismaService.project.findFirst({
-        where: {
-          id: projectId,
-          OR: [
-            { adminId: userId },
-            {
-              UsersOnProjects: {
-                some: {
-                  userId: userId,
-                },
-              },
-            },
-          ],
-        },
-        include: {
-          UsersOnProjects: {
-            include: {
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  role: true,
-                  isActive: true,
-                },
-              },
-            },
+    const userInProject = await this.prismaService.usersOnProjects.findFirst({
+      where: { projectId, userId },
+    });
+
+    const project = await this.prismaService.project.findUnique({
+      where: { id: projectId },
+      include: { admin: true },
+    });
+
+    if (!project) throw new NotFoundException('Project not found');
+
+    const isAdmin = project.adminId === userId;
+
+    if (!isAdmin && !userInProject) {
+      throw new UnauthorizedException(
+        "You don't have permission to access this project",
+      );
+    }
+
+    const members = await this.prismaService.usersOnProjects.findMany({
+      where: { projectId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            image: true,
+            isActive: true,
           },
         },
-      });
+      },
+    });
 
-      if (!project) throw new UnauthorizedException('Access denied');
+    if (members.length === 0)
+      throw new NotFoundException('Project has no members');
 
-      return project.UsersOnProjects.map(
-        (usersOnProject) => usersOnProject.user,
-      );
-    } catch (error) {
-      console.error('ERROR: could not find members', error);
-      throw new BadRequestException('Faild to fetch project members');
-    }
+    return members.map((user) => user.user);
   }
 
   // usuário quer buscar um projeto que ele está relacionado, seja um usuário ou admin
