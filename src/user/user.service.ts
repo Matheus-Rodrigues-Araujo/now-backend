@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FormattedProject } from 'src/types';
 
 @Injectable()
 export class UserService {
@@ -56,7 +57,7 @@ export class UserService {
         ...project.adminProjects,
       ];
 
-      const formattedProjects = allProjects.map((project) => ({
+      const formattedProjects: FormattedProject[] = allProjects.map((project) => ({
         id: project.id,
         title: project.title,
         image: project.image,
