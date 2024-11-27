@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProjectDto } from './dto';
+import { CreateProjectDto, FindProjectDto } from './dto';
+import { FormattedProject } from '../types';
 
 @Injectable()
 export class ProjectService {
@@ -23,63 +24,61 @@ export class ProjectService {
     }
   }
 
-  async findProjectMembers(projectId: number, userId: number) {
-    const userInProject = await this.prismaService.usersOnProjects.findFirst({
-      where: { projectId, userId },
-    });
+  async findOneByIdOrTitle(
+    param: FindProjectDto,
+    userId: number,
+  ): Promise<FormattedProject> {
+    const { id, title } = param;
 
-    const project = await this.prismaService.project.findUnique({
-      where: { id: projectId },
-      include: { admin: true },
-    });
+    if (!id && !title)
+      throw new BadRequestException('You must provide either an ID or a title');
 
-    if (!project) throw new NotFoundException('Project not found');
-
-    const isAdmin = project.adminId === userId;
-
-    if (!isAdmin && !userInProject) {
-      throw new UnauthorizedException(
-        "You don't have permission to access this project",
-      );
-    }
-
-    const members = await this.prismaService.usersOnProjects.findMany({
-      where: { projectId },
+    const project = await this.prismaService.project.findFirst({
+      where: {
+        OR: [{ id: id }, { title }],
+      },
       include: {
-        user: {
+        UsersOnProjects: {
           select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            role: true,
-            image: true,
-            isActive: true,
+            userId: true,
           },
         },
       },
     });
 
-    if (members.length === 0)
-      throw new NotFoundException('Project has no members');
-
-    return members.map((user) => user.user);
-  }
-
-  // usuário quer buscar um projeto que ele está relacionado, seja um usuário ou admin
-  // adicionar filtragem por título
-  async findOne(id: number): Promise<Project> {
-    const project = await this.prismaService.project.findUnique({
-      where: { id },
-    });
-
     if (!project) throw new NotFoundException('Project not found');
-    return project;
+
+    const isAdmin = project.adminId === userId;
+    const userInProject = project.UsersOnProjects[0].userId === userId;
+
+    if (!userInProject && !isAdmin)
+      throw new UnauthorizedException(
+        "You don't have permission to access this project",
+      );
+
+    const formattedProject: FormattedProject = {
+      id: project.id,
+      title: project.title,
+      image: project.image,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      isActive: project.isActive,
+      isAdmin: project.adminId === userId,
+    };
+    return formattedProject;
   }
 
-  async createAdminProject(
+  async createProjectAsAdmin(
     adminId: number,
     project: CreateProjectDto,
   ): Promise<Project> {
+    const existingProject = await this.findOneByIdOrTitle(
+      { title: project.title },
+      adminId,
+    );
+    if (existingProject.title === project.title)
+      throw new BadRequestException('Título está sendo utilizado!');
+
     const newProject = await this.prismaService.project.create({
       data: {
         title: project.title,
@@ -99,55 +98,15 @@ export class ProjectService {
     return newProject;
   }
 
-  async addUsersToProject(
-    projectId: number,
-    adminId: number,
-    usersIds: number[],
-  ) {
-    const project = await this.prismaService.project.findUnique({
-      where: { id: projectId },
-      include: { admin: true },
-    });
-
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
-
-    if (project.adminId !== adminId) {
-      throw new UnauthorizedException("You don't have permission!");
-    }
-
-    if (usersIds.length < 1) throw new NotFoundException('Data not found');
-
-    if (usersIds.indexOf(adminId) !== -1)
-      throw new BadRequestException('Admin cannot be added as a regular user');
-
-    try {
-      if (!Array.isArray(usersIds)) {
-        throw new Error('usersId must be an array');
-      }
-
-      await this.prismaService.usersOnProjects.createMany({
-        data: usersIds.map((userId) => ({
-          userId: userId,
-          projectId: projectId,
-        })),
-        skipDuplicates: true,
-      });
-
-      return { message: 'Users added to project successfully' };
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException('Error adding users to the project');
-    }
-  }
-
   // verify admin permission asap
-  async update(project: Project) {
+  async update(project: Project, userId: number) {
     try {
       const { id, title, image, startDate, endDate, isActive } = project;
 
-      const existingProject = this.findOne(project.id);
+      const existingProject = this.findOneByIdOrTitle(
+        { id: project.id },
+        userId,
+      );
       if (!existingProject) throw new NotFoundException('Project not found');
 
       const updatedProject = await this.prismaService.project.update({
