@@ -8,26 +8,36 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { Project } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { AddUsersToProjectDto, CreateProjectDto } from './dto';
-import { AuthenticateRequest } from 'src/types';
+import { AddUsersToProjectDto, CreateProjectDto, FindProjectDto } from './dto';
+import { AuthenticateRequest, FormattedProject } from 'src/types';
+import { ProjectMemberService } from './project-member.service';
 
 @Controller('projects')
 @UseGuards(AuthGuard)
 export class ProjectController {
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private projectMemberService: ProjectMemberService,
+  ) {}
 
   @Get()
   async findAll(): Promise<Project[]> {
     return await this.projectService.findAll();
   }
 
-  @Get(':id')
-  async get(@Param('id', ParseIntPipe) id: number): Promise<Project> {
-    return await this.projectService.findOne(id);
+  @Get('find')
+  async findOneByIdOrTitle(
+    @Query() query: FindProjectDto,
+    @Request() req: AuthenticateRequest,
+  ): Promise<FormattedProject> {
+    const { sub } = req.user;
+    return await this.projectService.findOneByIdOrTitle(query, sub);
   }
 
   @Post()
@@ -37,7 +47,7 @@ export class ProjectController {
   ): Promise<Project> {
     const { sub } = req.user;
 
-    return await this.projectService.createAdminProject(sub, project);
+    return await this.projectService.createProjectAsAdmin(sub, project);
   }
 
   @Get(':projectId/users')
@@ -46,7 +56,7 @@ export class ProjectController {
     @Request() req: AuthenticateRequest,
   ) {
     const { sub } = req.user;
-    return await this.projectService.findProjectMembers(projectId, sub);
+    return await this.projectMemberService.findProjectMembers(projectId, sub);
   }
 
   @Post(':projectId/users')
@@ -57,7 +67,7 @@ export class ProjectController {
   ) {
     const { usersIds } = body;
     const { sub } = req.user;
-    return await this.projectService.addUsersToProject(
+    return await this.projectMemberService.addUsersToProject(
       projectId,
       sub,
       usersIds,
