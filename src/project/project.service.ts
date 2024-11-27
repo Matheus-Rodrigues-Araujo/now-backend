@@ -24,6 +24,14 @@ export class ProjectService {
     }
   }
 
+  async findOne(id: number) {
+    const project = await this.prismaService.project.findUnique({
+      where: { id },
+    });
+    if (!project) throw new NotFoundException('Project not found');
+    return project;
+  }
+
   async findOneByIdOrTitle(
     param: FindProjectDto,
     userId: number,
@@ -72,13 +80,13 @@ export class ProjectService {
     adminId: number,
     project: CreateProjectDto,
   ): Promise<Project> {
-    const existingProject = await this.findOneByIdOrTitle(
-      { title: project.title },
-      adminId,
-    );
-    if (existingProject.title === project.title)
+    const existingProject = await this.prismaService.project.findUnique({where: {title: project.title}})
+    
+
+    if (existingProject && existingProject.title === project.title)
       throw new BadRequestException('Título está sendo utilizado!');
 
+    console.log(project)
     const newProject = await this.prismaService.project.create({
       data: {
         title: project.title,
@@ -127,9 +135,26 @@ export class ProjectService {
     }
   }
 
-  // verify admin permission
-  // create transaction to remove all related data
-  async delete(id: number): Promise<void> {
-    await this.prismaService.project.delete({ where: { id } });
+  async delete(id: number, userId: number): Promise<{ message: string }> {
+    const project = await this.findOne(id);
+
+    if (project.adminId !== userId)
+      throw new UnauthorizedException(
+        "You don't have permission to delete this project!",
+      );
+
+    try {
+      await this.prismaService.$transaction([
+        this.prismaService.usersOnProjects.deleteMany({
+          where: { projectId: id },
+        }),
+        this.prismaService.task.deleteMany({ where: { projectId: id } }),
+        this.prismaService.project.delete({ where: { id } }),
+      ]);
+
+      return { message: 'Project deleted succesfully' };
+    } catch {
+      throw new BadRequestException('The project could not be deleted');
+    }
   }
 }
