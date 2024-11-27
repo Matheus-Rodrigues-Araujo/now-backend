@@ -75,7 +75,11 @@ export class ProjectController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.projectService.delete(id);
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req:AuthenticateRequest
+  ) {
+    const {sub} = req.user
+    await this.projectService.delete(id, sub);
   }
 }
