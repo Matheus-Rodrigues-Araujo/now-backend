@@ -19,6 +19,13 @@ enum Task_Level {
   EXTREME
 }
 
+enum Task_Status {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
 model User {
   id              Int               @id @default(autoincrement())
   email           String            @unique
@@ -49,7 +56,10 @@ model Project {
   admin           User              @relation("AdminProjects", fields: [adminId], references: [id])
   adminId         Int
   UsersOnProjects UsersOnProjects[]
-
+  boards          Board[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
   @@map("projects")
 }
 
@@ -63,11 +73,15 @@ model UsersOnProjects {
 }
 
 model Board {
-  id    Int    @id @default(autoincrement())
-  title String
-  Task  Task[]
-  order Int?
-  theme Json
+  id        Int      @id @default(autoincrement())
+  title     String
+  tasks     Task[]
+  order     Int?
+  theme     Json
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("boards")
 }
@@ -78,11 +92,14 @@ model Task {
   description String?
   endDate     DateTime
   level       Task_Level?
+  status      Task_Status @default(TODO)
   project     Project     @relation(fields: [projectId], references: [id])
   projectId   Int
   board       Board       @relation(fields: [boardId], references: [id])
   boardId     Int
   order       Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@map("tasks")
 }
