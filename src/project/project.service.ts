@@ -141,7 +141,7 @@ export class ProjectService {
         this.prismaService.usersOnProjects.deleteMany({
           where: { projectId },
         }),
-        this.prismaService.task.deleteMany({ where: { projectId } }),
+        this.prismaService.board.deleteMany({ where: { projectId } }),
         this.prismaService.project.delete({ where: { id: projectId } }),
       ]);
 
