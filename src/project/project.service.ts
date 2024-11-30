@@ -8,6 +8,7 @@ import { Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProjectDto, FindProjectDto } from './dto';
 import { FormattedProject } from '../types';
+import { validateAdmin, validateUser } from 'src/common/validators';
 
 @Injectable()
 export class ProjectService {
@@ -56,13 +57,7 @@ export class ProjectService {
 
     if (!project) throw new NotFoundException('Project not found');
 
-    const isAdmin = project.adminId === userId;
-    const userInProject = project.UsersOnProjects[0].userId === userId;
-
-    if (!userInProject && !isAdmin)
-      throw new UnauthorizedException(
-        "You don't have permission to access this project",
-      );
+    await validateUser(this.prismaService, project.id, userId);
 
     const formattedProject: FormattedProject = {
       id: project.id,
@@ -80,13 +75,13 @@ export class ProjectService {
     adminId: number,
     project: CreateProjectDto,
   ): Promise<Project> {
-    const existingProject = await this.prismaService.project.findUnique({where: {title: project.title}})
-    
+    const existingProject = await this.prismaService.project.findUnique({
+      where: { title: project.title },
+    });
 
     if (existingProject && existingProject.title === project.title)
       throw new BadRequestException('Título está sendo utilizado!');
 
-    console.log(project)
     const newProject = await this.prismaService.project.create({
       data: {
         title: project.title,
@@ -135,21 +130,19 @@ export class ProjectService {
     }
   }
 
-  async delete(id: number, userId: number): Promise<{ message: string }> {
-    const project = await this.findOne(id);
-
-    if (project.adminId !== userId)
-      throw new UnauthorizedException(
-        "You don't have permission to delete this project!",
-      );
+  async delete(
+    projectId: number,
+    userId: number,
+  ): Promise<{ message: string }> {
+    await validateAdmin(this.prismaService, projectId, userId);
 
     try {
       await this.prismaService.$transaction([
         this.prismaService.usersOnProjects.deleteMany({
-          where: { projectId: id },
+          where: { projectId },
         }),
-        this.prismaService.task.deleteMany({ where: { projectId: id } }),
-        this.prismaService.project.delete({ where: { id } }),
+        this.prismaService.task.deleteMany({ where: { projectId } }),
+        this.prismaService.project.delete({ where: { id: projectId } }),
       ]);
 
       return { message: 'Project deleted succesfully' };
