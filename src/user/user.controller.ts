@@ -17,7 +17,7 @@ export class UserController {
       sub,
     };
   }
-
+  
   @Get('projects')
   async findProjectsForUser(@Request() req: AuthenticateRequest) {
     const { sub } = req.user;
