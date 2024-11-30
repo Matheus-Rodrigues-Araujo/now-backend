@@ -1,21 +1,22 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserValidation } from 'src/types';
 
-export async function validateAdmin(validation: UserValidation) {
-  const { prismaService, projectId, userId } = validation;
-  const project = await prismaService.usersOnProjects.findFirst({
-    where: { projectId },
-    include: {
-      project: {
-        select: { adminId: true },
-      },
-    },
+export async function validateAdmin(
+  prismaService: PrismaService,
+  projectId: number,
+  userId: number,
+): Promise<boolean> {
+  const project = await prismaService.project.findUnique({
+    where: { id: projectId },
   });
 
-  if (!project || project.project.adminId !== userId) {
+  if (!project) {
+    throw new UnauthorizedException('Project not found');
+  }
+
+  if (project.adminId !== userId) {
     throw new UnauthorizedException('Only admins can perform this action');
   }
 
-  return project;
+  return project.adminId === userId;
 }
