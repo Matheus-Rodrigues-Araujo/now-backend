@@ -1,12 +1,16 @@
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserValidation } from 'src/types';
 
-export async function validateUser(validation: UserValidation) {
-  const { prismaService, projectId, userId } = validation;
+export async function validateUser(
+  prismaService: PrismaService,
+  projectId: number,
+  userId: number,
+): Promise<boolean> {
   const project = await prismaService.usersOnProjects.findFirst({
-    where: { userId, projectId },
+    where: { projectId, userId },
   });
+
   if (!project) throw new NotFoundException('Project not found');
-  return project;
+
+  return true;
 }
