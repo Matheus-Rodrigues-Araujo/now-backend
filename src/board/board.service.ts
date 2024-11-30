@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateBoardDto } from './dto';
+import { CreateBoardDto, UpdateBoardDto } from './dto';
 import { validateAdmin, validateUserOrAdmin } from 'src/common/validators';
 
 @Injectable()
@@ -49,6 +49,25 @@ export class BoardService {
     if (!board) throw new NotFoundException('Board not found');
 
     return board.tasks;
+  }
+
+  async update(
+    updateBoardDto: UpdateBoardDto,
+    boardId: number,
+    projectId: number,
+    userId: number,
+  ) {
+
+    const updatedBoard = await this.prismaService.board.update({
+      where: { id: boardId, projectId },
+      data: {
+        title: updateBoardDto.title,
+        theme: updateBoardDto.theme as Prisma.JsonObject,
+      },
+    });
+
+    if (!updatedBoard) throw new BadRequestException('Board not updated');
+    return await this.findOne(boardId, projectId, userId);
   }
 
   async delete(boardId: number, projectId: number, userId: number) {
