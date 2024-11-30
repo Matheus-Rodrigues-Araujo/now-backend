@@ -46,9 +46,8 @@ export class BoardService {
       },
     });
 
-    if (!board) throw new NotFoundException('Boards not found');
-    if (board.tasks.length === 0)
-      throw new NotFoundException('No boards created');
+    if (!board) throw new NotFoundException('Board not found');
+
     return board.tasks;
   }
 
