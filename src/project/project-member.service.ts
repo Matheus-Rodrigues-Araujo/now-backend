@@ -5,50 +5,42 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  validateAdmin,
+  validateUser,
+  validateUserOrAdmin,
+} from 'src/common/validators';
 
 @Injectable()
 export class ProjectMemberService {
   constructor(private prismaService: PrismaService) {}
 
-  private async validateUserAccessToProject(projectId: number, userId: number) {
-    const userInProject = await this.prismaService.usersOnProjects.findFirst({
-      where: { projectId, userId },
-    });
+  // private async validateUserAccessToProject(projectId: number, userId: number) {
+  //   const userInProject = await this.prismaService.usersOnProjects.findFirst({
+  //     where: { projectId, userId },
+  //   });
 
-    const project = await this.prismaService.project.findUnique({
-      where: { id: projectId },
-    });
+  //   const project = await this.prismaService.project.findUnique({
+  //     where: { id: projectId },
+  //   });
 
-    if (!project) throw new NotFoundException('Project not found');
+  //   if (!project) throw new NotFoundException('Project not found');
 
-    const isAdmin = project.adminId === userId;
+  //   const isAdmin = project.adminId === userId;
 
-    if (!isAdmin && !userInProject) {
-      throw new UnauthorizedException(
-        "You don't have permission to access this project",
-      );
-    }
-  }
-
-  private async validAdmin(projectId: number, userId: number) {
-    const project = await this.prismaService.project.findUnique({
-      where: { id: projectId },
-    });
-
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
-
-    if (project.adminId !== userId)
-      throw new UnauthorizedException('Only admins are allowed');
-  }
+  //   if (!isAdmin && !userInProject) {
+  //     throw new UnauthorizedException(
+  //       "You don't have permission to access this project",
+  //     );
+  //   }
+  // }
 
   async addUsersToProject(
     projectId: number,
     adminId: number,
     usersIds: number[],
   ) {
-    await this.validAdmin(projectId, adminId);
+    await validateAdmin(this.prismaService, projectId, adminId);
 
     if (usersIds.length < 1)
       throw new NotFoundException("You didn't add any user!");
@@ -73,7 +65,7 @@ export class ProjectMemberService {
   }
 
   async findProjectMembers(projectId: number, userId: number) {
-    await this.validateUserAccessToProject(projectId, userId);
+    await validateUserOrAdmin(this.prismaService, projectId, userId);
 
     const members = await this.prismaService.usersOnProjects.findMany({
       where: { projectId },
