@@ -1,10 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsString, IsNotEmpty, IsInt, IsJSON, IsObject } from 'class-validator';
-
-type themeObject = {
-  backgroundColor?: string;
-  color?: string;
-};
+import { ThemeProps } from 'src/types';
 
 export class CreateBoardDto {
   @IsString()
@@ -13,7 +9,7 @@ export class CreateBoardDto {
 
   @IsObject()
   @IsNotEmpty()
-  theme: themeObject;
+  theme: ThemeProps;
 
   @IsInt()
   @IsNotEmpty()
