@@ -24,18 +24,24 @@ export class BoardController {
     return await this.boardService.create(board);
   }
 
+  @Get(':id')
+  async findAllBoardTasks(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { projectId: number },
+    @Request() req: AuthenticateRequest,
+  ) {
+    const { projectId } = body;
+    const { sub } = req.user;
+    return await this.boardService.findAllBoardTasks(id, projectId, sub);
+  }
+
   @Delete(':id')
   async delete(
     @Param('id') id: number,
-    @Body() body: any,
+    @Body() body: { projectId: number },
     @Request() req: AuthenticateRequest,
   ) {
     const { projectId } = body;
     await this.boardService.delete(id, projectId, req.user.sub);
   }
-
-  //   @Get(':id')
-  //   async findAllBoardTasks(@Param('id', ParseIntPipe) id: number, @Body() body:any, @Request() req) {
-  //     return this.boardService.findAllBoardTasks(id, );
-  //   }
 }
