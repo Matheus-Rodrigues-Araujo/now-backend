@@ -52,7 +52,7 @@ export class ProjectController {
   ): Promise<Project> {
     const userId = req.user.sub;
 
-    return await this.projectService.createProjectAsAdmin(userId, project);
+    return await this.projectService.createProjectAsAdmin(project, userId);
   }
 
   @Get(':projectId/users')
