@@ -138,9 +138,8 @@ export class ProjectService {
 
     try {
       await this.prismaService.$transaction([
-        this.prismaService.usersOnProjects.deleteMany({
-          where: { projectId },
-        }),
+        this.prismaService.usersOnProjects.deleteMany({ where: { projectId } }),
+        this.prismaService.task.deleteMany({ where: { board: { projectId } } }),
         this.prismaService.board.deleteMany({ where: { projectId } }),
         this.prismaService.project.delete({ where: { id: projectId } }),
       ]);
