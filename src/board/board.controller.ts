@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Query,
   ParseIntPipe,
   Post,
   Delete,
@@ -21,39 +22,52 @@ export class BoardController {
   constructor(private boardService: BoardService) {}
 
   @Post()
-  async create(@Body() board: CreateBoardDto) {
-    return await this.boardService.create(board);
+  async create(@Body() createBoardDto: CreateBoardDto) {
+    return await this.boardService.create(createBoardDto);
+  }
+
+  @Get(':id/tasks')
+  async findAllBoardTasks(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('projectId', ParseIntPipe) projectId: number,
+    @Request() req: AuthenticateRequest,
+  ) {
+    const { sub } = req.user;
+    return await this.boardService.findAllBoardTasks(id, projectId, sub);
   }
 
   @Get(':id')
-  async findAllBoardTasks(
+  async findOne(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { projectId: number },
+    @Query('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ) {
-    const { projectId } = body;
-    const { sub } = req.user;
-    return await this.boardService.findAllBoardTasks(id, projectId, sub);
+    const userId = req.user.sub;
+    return await this.boardService.findOne(id, projectId, userId);
   }
 
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { updateBoardDto: UpdateBoardDto; projectId: number },
+    @Query('projectId') projectId: number,
+    @Body() updateBoardDto: UpdateBoardDto,
     @Request() req: AuthenticateRequest,
   ) {
-    const { sub } = req.user;
-    const { updateBoardDto, projectId } = body;
-    return await this.boardService.update(updateBoardDto, id, projectId, sub);
+    const userId = req.user.sub;
+    return await this.boardService.update(
+      updateBoardDto,
+      id,
+      projectId,
+      userId,
+    );
   }
 
   @Delete(':id')
   async delete(
     @Param('id') id: number,
-    @Body() body: { projectId: number },
+    @Query('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ) {
-    const { projectId } = body;
     await this.boardService.delete(id, projectId, req.user.sub);
   }
 }
