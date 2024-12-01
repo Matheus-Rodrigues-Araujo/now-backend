@@ -57,13 +57,15 @@ export class BoardService {
     projectId: number,
     userId: number,
   ) {
+    const { title, theme } = updateBoardDto;
+    const dataToUpdate: Partial<Prisma.BoardUpdateInput> = {};
+    
+    if (title !== undefined) dataToUpdate.title = title;
+    if (theme !== undefined) dataToUpdate.theme = theme as Prisma.JsonObject;
 
     const updatedBoard = await this.prismaService.board.update({
       where: { id: boardId, projectId },
-      data: {
-        title: updateBoardDto.title,
-        theme: updateBoardDto.theme as Prisma.JsonObject,
-      },
+      data: dataToUpdate,
     });
 
     if (!updatedBoard) throw new BadRequestException('Board not updated');
