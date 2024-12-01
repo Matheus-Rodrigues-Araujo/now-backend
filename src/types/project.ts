@@ -1,9 +1,16 @@
-export interface FormattedProject {
+export interface ProjectModel {
   id: number;
   title: string;
-  image: string;
+  image: string | null;
   startDate: Date;
   endDate: Date;
-  isAdmin: boolean;
   isActive: boolean;
+  adminId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FormattedProject
+  extends Omit<Partial<ProjectModel>, 'adminId'> {
+  isAdmin?: boolean;
 }
