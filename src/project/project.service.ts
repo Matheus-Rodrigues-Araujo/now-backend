@@ -75,8 +75,8 @@ export class ProjectService {
   }
 
   async createProjectAsAdmin(
-    adminId: number,
     project: CreateProjectDto,
+    adminId: number,
   ): Promise<Project> {
     const existingProject = await this.prismaService.project.findUnique({
       where: { title: project.title },
