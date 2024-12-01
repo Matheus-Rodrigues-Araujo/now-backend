@@ -33,8 +33,8 @@ export class BoardController {
     @Query('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ): Promise<Task[]> {
-    const { sub } = req.user;
-    return await this.boardService.findAllBoardTasks(id, projectId, sub);
+    const userId = req.user.sub
+    return await this.boardService.findAllBoardTasks(id, projectId, userId);
   }
 
   @Get(':id')
