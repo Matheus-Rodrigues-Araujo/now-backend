@@ -2,13 +2,16 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProjectDto, FindProjectDto } from './dto';
+import { CreateProjectDto, FindProjectDto, UpdateProjectDto } from './dto';
 import { FormattedProject } from '../types';
-import { validateAdmin, validateUser } from 'src/common/validators';
+import {
+  validateAdmin,
+  validateUserOrAdmin,
+} from 'src/common/validators';
+import { formatProject } from 'src/common/helpers';
 
 @Injectable()
 export class ProjectService {
@@ -57,7 +60,7 @@ export class ProjectService {
 
     if (!project) throw new NotFoundException('Project not found');
 
-    await validateUser(this.prismaService, project.id, userId);
+    await validateUserOrAdmin(this.prismaService, project.id, userId);
 
     const formattedProject: FormattedProject = {
       id: project.id,
@@ -101,29 +104,32 @@ export class ProjectService {
     return newProject;
   }
 
-  // verify admin permission asap
-  async update(project: Project, userId: number) {
-    try {
-      const { id, title, image, startDate, endDate, isActive } = project;
+  async update(
+    updateProjectDto: UpdateProjectDto,
+    projectId: number,
+    userId: number,
+  ) {
+    await validateAdmin(this.prismaService, projectId, userId);
 
-      const existingProject = this.findOneByIdOrTitle(
-        { id: project.id },
-        userId,
-      );
-      if (!existingProject) throw new NotFoundException('Project not found');
+    try {
+      const project = await this.findOne(projectId);
+      const dataToUpdate = {};
+      Object.entries(updateProjectDto).forEach((obj) => {
+        dataToUpdate[obj[0]] = obj[1];
+      });
 
       const updatedProject = await this.prismaService.project.update({
-        where: { id: id },
-        data: {
-          title,
-          image,
-          startDate,
-          endDate,
-          isActive,
-        },
+        where: { id: project.id },
+        data: dataToUpdate,
       });
       if (!updatedProject) throw new BadRequestException('Project not updated');
-      return updatedProject;
+
+      const formattedProject: FormattedProject = formatProject(
+        updatedProject,
+        userId,
+      );
+
+      return formattedProject;
     } catch (error) {
       console.error('ERROR: project not updated', error);
       throw new BadRequestException();
