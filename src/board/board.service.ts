@@ -12,13 +12,13 @@ import { validateAdmin, validateUserOrAdmin } from 'src/common/validators';
 export class BoardService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(board: CreateBoardDto) {
-    if (!board) throw new NotFoundException('Fiels empty');
+  async create(createBoardDto: CreateBoardDto) {
+    if (!createBoardDto) throw new NotFoundException('Fiels empty');
     const newBoard = await this.prismaService.board.create({
       data: {
-        title: board.title,
-        theme: board.theme as Prisma.JsonObject,
-        projectId: board.projectId,
+        title: createBoardDto.title,
+        theme: createBoardDto.theme as Prisma.JsonObject,
+        projectId: createBoardDto.projectId,
       },
     });
 
@@ -59,7 +59,7 @@ export class BoardService {
   ) {
     const { title, theme } = updateBoardDto;
     const dataToUpdate: Partial<Prisma.BoardUpdateInput> = {};
-    
+
     if (title !== undefined) dataToUpdate.title = title;
     if (theme !== undefined) dataToUpdate.theme = theme as Prisma.JsonObject;
 
