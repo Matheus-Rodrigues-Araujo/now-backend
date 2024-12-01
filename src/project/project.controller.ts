@@ -9,12 +9,17 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
-  ValidationPipe,
+  Put,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { Project } from '@prisma/client';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { AddUsersToProjectDto, CreateProjectDto, FindProjectDto } from './dto';
+import {
+  AddUsersToProjectDto,
+  CreateProjectDto,
+  FindProjectDto,
+  UpdateProjectDto,
+} from './dto';
 import { AuthenticateRequest, FormattedProject } from 'src/types';
 import { ProjectMemberService } from './project-member.service';
 
@@ -74,12 +79,22 @@ export class ProjectController {
     );
   }
 
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @Request() req: AuthenticateRequest,
+  ){
+    const userId = req.user.sub;
+    return await this.projectService.update(updateProjectDto, id, userId);
+  }
+
   @Delete(':id')
   async delete(
     @Param('id', ParseIntPipe) id: number,
-    @Request() req:AuthenticateRequest
+    @Request() req: AuthenticateRequest,
   ) {
-    const {sub} = req.user
+    const { sub } = req.user;
     await this.projectService.delete(id, sub);
   }
 }
