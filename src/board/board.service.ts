@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Board, Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto';
 import { validateAdmin, validateUserOrAdmin } from 'src/common/validators';
@@ -12,7 +12,7 @@ import { validateAdmin, validateUserOrAdmin } from 'src/common/validators';
 export class BoardService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createBoardDto: CreateBoardDto) {
+  async create(createBoardDto: CreateBoardDto): Promise<Board> {
     if (!createBoardDto) throw new NotFoundException('Fiels empty');
     const newBoard = await this.prismaService.board.create({
       data: {
@@ -26,7 +26,11 @@ export class BoardService {
     return newBoard;
   }
 
-  async findOne(boardId: number, projectId: number, userId: number) {
+  async findOne(
+    boardId: number,
+    projectId: number,
+    userId: number,
+  ): Promise<Board> {
     await validateUserOrAdmin(this.prismaService, projectId, userId);
     const board = await this.prismaService.board.findUnique({
       where: { id: boardId, projectId },
@@ -36,7 +40,11 @@ export class BoardService {
     return board;
   }
 
-  async findAllBoardTasks(boardId: number, projectId: number, userId: number) {
+  async findAllBoardTasks(
+    boardId: number,
+    projectId: number,
+    userId: number,
+  ): Promise<Task[]> {
     await validateUserOrAdmin(this.prismaService, projectId, userId);
 
     const board = await this.prismaService.board.findFirst({
@@ -56,7 +64,7 @@ export class BoardService {
     boardId: number,
     projectId: number,
     userId: number,
-  ) {
+  ): Promise<Board> {
     const { title, theme } = updateBoardDto;
     const dataToUpdate: Partial<Prisma.BoardUpdateInput> = {};
 
@@ -72,12 +80,21 @@ export class BoardService {
     return await this.findOne(boardId, projectId, userId);
   }
 
-  async delete(boardId: number, projectId: number, userId: number) {
+  async delete(
+    boardId: number,
+    projectId: number,
+    userId: number,
+  ): Promise<{ message: string }> {
     await validateAdmin(this.prismaService, projectId, userId);
 
-    await this.prismaService.$transaction([
-      this.prismaService.task.deleteMany({ where: { boardId } }),
-      this.prismaService.board.delete({ where: { id: boardId } }),
-    ]);
+    try {
+      await this.prismaService.$transaction([
+        this.prismaService.task.deleteMany({ where: { boardId } }),
+        this.prismaService.board.delete({ where: { id: boardId } }),
+      ]);
+      return { message: 'Project deleted successfully' };
+    } catch (error) {
+      throw new BadRequestException(`Project could not be deleted: ${error}`);
+    }
   }
 }
