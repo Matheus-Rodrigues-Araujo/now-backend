@@ -41,8 +41,8 @@ export class ProjectController {
     @Query() query: FindProjectDto,
     @Request() req: AuthenticateRequest,
   ): Promise<FormattedProject> {
-    const { sub } = req.user;
-    return await this.projectService.findOneByIdOrTitle(query, sub);
+    const userId = req.user.sub;
+    return await this.projectService.findOneByIdOrTitle(query, userId);
   }
 
   @Post()
@@ -50,9 +50,9 @@ export class ProjectController {
     @Body() project: CreateProjectDto,
     @Request() req: AuthenticateRequest,
   ): Promise<Project> {
-    const { sub } = req.user;
+    const userId = req.user.sub;
 
-    return await this.projectService.createProjectAsAdmin(sub, project);
+    return await this.projectService.createProjectAsAdmin(userId, project);
   }
 
   @Get(':projectId/users')
@@ -60,8 +60,8 @@ export class ProjectController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ) {
-    const { sub } = req.user;
-    return await this.projectMemberService.findProjectMembers(projectId, sub);
+    const userId = req.user.sub;
+    return await this.projectMemberService.findProjectMembers(projectId, userId);
   }
 
   @Post(':projectId/users')
@@ -71,10 +71,10 @@ export class ProjectController {
     @Body() body: AddUsersToProjectDto,
   ) {
     const { usersIds } = body;
-    const { sub } = req.user;
+    const userId = req.user.sub;
     return await this.projectMemberService.addUsersToProject(
       projectId,
-      sub,
+      userId,
       usersIds,
     );
   }
@@ -84,7 +84,7 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProjectDto: UpdateProjectDto,
     @Request() req: AuthenticateRequest,
-  ){
+  ) {
     const userId = req.user.sub;
     return await this.projectService.update(updateProjectDto, id, userId);
   }
@@ -94,7 +94,7 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: AuthenticateRequest,
   ) {
-    const { sub } = req.user;
-    await this.projectService.delete(id, sub);
+    const userId = req.user.sub;
+    await this.projectService.delete(id, userId);
   }
 }
