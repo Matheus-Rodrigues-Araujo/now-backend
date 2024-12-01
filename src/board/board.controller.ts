@@ -69,11 +69,8 @@ export class BoardController {
     @Query('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ): Promise<{ message: string }> {
-    const response = await this.boardService.delete(
-      id,
-      projectId,
-      req.user.sub,
-    );
+    const userId = req.user.sub;
+    const response = await this.boardService.delete(id, projectId, userId);
     return response;
   }
 }
