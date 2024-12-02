@@ -8,8 +8,16 @@ datasource db {
 }
 
 enum User_Role {
+  ULTIMATE_ADMIN
+  WORKSPACE_ADMIN
+  PROJECT_ADMIN
   USER
-  ADMIN
+  VIEWER
+}
+
+enum Profile_Type {
+  COMPANY
+  INDIVIDUAL
 }
 
 enum Task_Level {
@@ -26,22 +34,80 @@ enum Task_Status {
   DONE
 }
 
+enum Organization_Role {
+  ADMIN
+  MEMBER
+  CONTRACTOR
+}
+
+enum History_Action {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model Organization {
+  id          Int                    @id @default(autoincrement())
+  name        String                 @unique
+  description String?
+  logo        String?
+  workspaces  Workspace[]
+  users       UsersOnOrganizations[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@map("organizations")
+}
+
+model Workspace {
+  id                Int                 @id @default(autoincrement())
+  title             String              @unique
+  image             String?
+  projects          Project[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  UsersOnWorkspaces UsersOnWorkspaces[]
+  Organization      Organization?       @relation(fields: [organizationId], references: [id])
+  organizationId    Int?
+
+  @@map("workspaces")
+}
+
 model User {
-  id              Int               @id @default(autoincrement())
-  email           String            @unique
-  firstName       String
-  lastName        String?
-  hash            String
-  role            User_Role         @default(USER)
-  image           String?
-  projects        Project[]         @relation("UserProjects")
-  adminProjects   Project[]         @relation("AdminProjects")
-  isActive        Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  UsersOnProjects UsersOnProjects[]
+  id                Int                    @id @default(autoincrement())
+  email             String                 @unique
+  firstName         String
+  lastName          String?
+  hash              String
+  role              User_Role              @default(USER)
+  image             String?
+  profile           Profile?
+  profileId         Int
+  projects          Project[]              @relation("UserProjects")
+  adminProjects     Project[]              @relation("AdminProjects")
+  isActive          Boolean                @default(false)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  history           History[]
+  UsersOnProjects   UsersOnProjects[]
+  UsersOnWorkspaces UsersOnWorkspaces[]
+  organizations     UsersOnOrganizations[]
 
   @@map("users")
+}
+
+model Profile {
+  id        Int          @id @default(autoincrement())
+  user      User         @relation(fields: [userId], references: [id])
+  userId    Int          @unique
+  phone     String?
+  address   String?
+  country   String
+  timezone  String?
+  birthdate DateTime?
+  type      Profile_Type @default(INDIVIDUAL)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 model Project {
@@ -54,21 +120,14 @@ model Project {
   users           User[]            @relation("UserProjects")
   admin           User              @relation("AdminProjects", fields: [adminId], references: [id])
   adminId         Int
+  workspace       Workspace         @relation(fields: [workspaceId], references: [id])
+  workspaceId     Int
   UsersOnProjects UsersOnProjects[]
   boards          Board[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   @@map("projects")
-}
-
-model UsersOnProjects {
-  user      User    @relation(fields: [userId], references: [id])
-  userId    Int
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-
-  @@id([userId, projectId])
 }
 
 model Board {
@@ -99,4 +158,50 @@ model Task {
   updatedAt   DateTime    @updatedAt
 
   @@map("tasks")
+}
+
+model History {
+  id          Int            @id @default(autoincrement())
+  entityType  String
+  entityId    Int
+  actionType  History_Action
+  description String
+  user        User           @relation(fields: [userId], references: [id])
+  userId      Int
+  createdAt   DateTime       @default(now())
+
+  @@map("history")
+}
+
+model UsersOnOrganizations {
+  user           User              @relation(fields: [userId], references: [id])
+  userId         Int
+  organization   Organization      @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  role           Organization_Role @default(MEMBER)
+  joinedAt       DateTime          @default(now())
+
+  @@id([userId, organizationId])
+}
+
+model UsersOnWorkspaces {
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+  role        User_Role @default(USER)
+  assignedAt  DateTime  @default(now())
+
+  @@id([userId, workspaceId])
+}
+
+model UsersOnProjects {
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  project    Project   @relation(fields: [projectId], references: [id])
+  projectId  Int
+  role       User_Role @default(USER)
+  assignedAt DateTime  @default(now())
+
+  @@id([userId, projectId])
 }
