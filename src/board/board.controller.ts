@@ -33,7 +33,7 @@ export class BoardController {
     @Query('projectId', ParseIntPipe) projectId: number,
     @Request() req: AuthenticateRequest,
   ): Promise<Task[]> {
-    const userId = req.user.sub
+    const userId = req.user.sub;
     return await this.boardService.findAllBoardTasks(id, projectId, userId);
   }
 
@@ -55,12 +55,18 @@ export class BoardController {
     @Request() req: AuthenticateRequest,
   ): Promise<Board> {
     const userId = req.user.sub;
+    
     return await this.boardService.update(
       updateBoardDto,
       id,
       projectId,
       userId,
     );
+  }
+
+  @Put('order')
+  async updateOrder(@Body() newOrder: { id: number; order: number }[]) {
+    return await this.boardService.updateOrder(newOrder);
   }
 
   @Delete(':id')

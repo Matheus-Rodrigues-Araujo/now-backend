@@ -79,6 +79,17 @@ export class BoardService {
     if (!updatedBoard) throw new BadRequestException('Board not updated');
     return await this.findOne(boardId, projectId, userId);
   }
+  
+  async updateOrder(boards: { id: number; order: number }[]): Promise<Board[]> {
+    const sortedBoards = boards.map((board) => {
+      return this.prismaService.board.update({
+        where: { id: board.id },
+        data: { order: board.order },
+      });
+    });
+
+    return await Promise.all(sortedBoards);
+  }
 
   async delete(
     boardId: number,
