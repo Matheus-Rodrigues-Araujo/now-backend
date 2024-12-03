@@ -12,19 +12,19 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Project } from '@prisma/client';
-import { AuthGuard } from 'src/auth/auth.guard';
 import {
   AddUsersToProjectDto,
   CreateProjectDto,
   FindProjectDto,
   UpdateProjectDto,
 } from './dto';
-import { AuthenticateRequest, FormattedProject } from 'src/types';
 import { ProjectMemberService } from './project-member.service';
+import { FormattedProject, JwtPayload } from 'src/types';
 
 @Controller('projects')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ProjectController {
   constructor(
     private projectService: ProjectService,
@@ -39,7 +39,7 @@ export class ProjectController {
   @Get('find')
   async findOneByIdOrTitle(
     @Query() query: FindProjectDto,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<FormattedProject> {
     const userId = req.user.sub;
     return await this.projectService.findOneByIdOrTitle(query, userId);
@@ -48,7 +48,7 @@ export class ProjectController {
   @Post()
   async createAdminProject(
     @Body() project: CreateProjectDto,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<Project> {
     const userId = req.user.sub;
 
@@ -58,16 +58,19 @@ export class ProjectController {
   @Get(':projectId/users')
   async findProjectMembers(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ) {
     const userId = req.user.sub;
-    return await this.projectMemberService.findProjectMembers(projectId, userId);
+    return await this.projectMemberService.findProjectMembers(
+      projectId,
+      userId,
+    );
   }
 
   @Post(':projectId/users')
   async addUsersToProject(
     @Param('projectId', ParseIntPipe) projectId: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
     @Body() body: AddUsersToProjectDto,
   ) {
     const { usersIds } = body;
@@ -83,7 +86,7 @@ export class ProjectController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProjectDto: UpdateProjectDto,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ) {
     const userId = req.user.sub;
     return await this.projectService.update(updateProjectDto, id, userId);
@@ -92,7 +95,7 @@ export class ProjectController {
   @Delete(':id')
   async delete(
     @Param('id', ParseIntPipe) id: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ) {
     const userId = req.user.sub;
     await this.projectService.delete(id, userId);
