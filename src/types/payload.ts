@@ -1,4 +1,4 @@
-export interface AuthenticateRequest {
+export interface JwtPayload {
   user: {
     sub: number;
     firstName: string;
