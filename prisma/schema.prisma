@@ -8,7 +8,7 @@ datasource db {
 }
 
 enum User_Role {
-  ULTIMATE_ADMIN
+  ADMIN
   WORKSPACE_ADMIN
   PROJECT_ADMIN
   USER
@@ -46,33 +46,6 @@ enum History_Action {
   DELETE
 }
 
-model Organization {
-  id          Int                    @id @default(autoincrement())
-  name        String                 @unique
-  description String?
-  logo        String?
-  workspaces  Workspace[]
-  users       UsersOnOrganizations[]
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-
-  @@map("organizations")
-}
-
-model Workspace {
-  id                Int                 @id @default(autoincrement())
-  title             String              @unique
-  image             String?
-  projects          Project[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  UsersOnWorkspaces UsersOnWorkspaces[]
-  Organization      Organization?       @relation(fields: [organizationId], references: [id])
-  organizationId    Int?
-
-  @@map("workspaces")
-}
-
 model User {
   id                Int                    @id @default(autoincrement())
   email             String                 @unique
@@ -82,7 +55,6 @@ model User {
   role              User_Role              @default(USER)
   image             String?
   profile           Profile?
-  profileId         Int
   projects          Project[]              @relation("UserProjects")
   adminProjects     Project[]              @relation("AdminProjects")
   isActive          Boolean                @default(false)
@@ -110,6 +82,33 @@ model Profile {
   updatedAt DateTime     @updatedAt
 }
 
+model Organization {
+  id          Int                    @id @default(autoincrement())
+  name        String                 @unique
+  description String?
+  logo        String?
+  workspaces  Workspace[]
+  users       UsersOnOrganizations[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@map("organizations")
+}
+
+model Workspace {
+  id                Int                 @id @default(autoincrement())
+  title             String              @unique
+  image             String?
+  projects          Project[]           
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  UsersOnWorkspaces UsersOnWorkspaces[]
+  Organization      Organization?       @relation(fields: [organizationId], references: [id])
+  organizationId    Int?
+
+  @@map("workspaces")
+}
+
 model Project {
   id              Int               @id @default(autoincrement())
   title           String            @unique
@@ -120,8 +119,8 @@ model Project {
   users           User[]            @relation("UserProjects")
   admin           User              @relation("AdminProjects", fields: [adminId], references: [id])
   adminId         Int
-  workspace       Workspace         @relation(fields: [workspaceId], references: [id])
-  workspaceId     Int
+  workspace       Workspace?         @relation(fields: [workspaceId], references: [id])
+  workspaceId     Int?
   UsersOnProjects UsersOnProjects[]
   boards          Board[]
   createdAt       DateTime          @default(now())
