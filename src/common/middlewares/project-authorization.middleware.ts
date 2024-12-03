@@ -1,11 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtPayload } from 'src/types';
 import { validateUserOrAdmin } from '../validators';
 
 @Injectable()
-export class ProjectAuthorizationMiddleware {
+export class ProjectAuthorizationMiddleware implements NestMiddleware {
   constructor(private prismaService: PrismaService) {}
 
   async use(req: Request<any>, res: Response, next: NextFunction) {
