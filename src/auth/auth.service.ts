@@ -4,6 +4,7 @@ import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthLogin, AuthRegister } from './dto';
+import { JwtPayload } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -16,21 +17,24 @@ export class AuthService {
     try {
       const { email, hash } = authLogin;
 
-      const userExists = await this.prismaService.user.findUnique({where: { email }});
-      if (!userExists) throw new UnauthorizedException('Invalid email or password');
+      const userExists = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+      if (!userExists)
+        throw new UnauthorizedException('Invalid email or password');
 
       const verifyHash = await argon2.verify(userExists.hash, hash);
       if (!verifyHash) throw new UnauthorizedException('Invalid password!');
 
-      const payload = {
+      const payload: JwtPayload['user'] = {
         firstName: userExists.firstName,
         lastName: userExists.lastName || '',
         sub: userExists.id,
       };
 
-      return {
-        access_token: await this.jwtService.signAsync(payload),
-      };
+      const access_token = await this.jwtService.signAsync(payload);
+
+      return { access_token };
     } catch (error) {
       console.error('ERROR: user login', error);
       throw error;
