@@ -16,11 +16,8 @@ export class AuthService {
     try {
       const { email, hash } = authLogin;
 
-      const userExists = await this.prismaService.user.findUnique({
-        where: { email },
-      });
-      if (!userExists)
-        throw new UnauthorizedException('Invalid email or password');
+      const userExists = await this.prismaService.user.findUnique({where: { email }});
+      if (!userExists) throw new UnauthorizedException('Invalid email or password');
 
       const verifyHash = await argon2.verify(userExists.hash, hash);
       if (!verifyHash) throw new UnauthorizedException('Invalid password!');
