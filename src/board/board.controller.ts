@@ -11,14 +11,14 @@ import {
   UseGuards,
   Put,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateBoardDto, UpdateBoardDto } from './dto';
 import { BoardService } from './board.service';
-import { AuthenticateRequest } from 'src/types';
+import { JwtPayload } from 'src/types';
 import { Board, Task } from '@prisma/client';
 
 @Controller('boards')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class BoardController {
   constructor(private boardService: BoardService) {}
 
@@ -31,7 +31,7 @@ export class BoardController {
   async findAllBoardTasks(
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<Task[]> {
     const userId = req.user.sub;
     return await this.boardService.findAllBoardTasks(id, projectId, userId);
@@ -41,7 +41,7 @@ export class BoardController {
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<Board> {
     const userId = req.user.sub;
     return await this.boardService.findOne(id, projectId, userId);
@@ -52,7 +52,7 @@ export class BoardController {
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId') projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<Board> {
     const userId = req.user.sub;
     
@@ -73,7 +73,7 @@ export class BoardController {
   async delete(
     @Param('id') id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: AuthenticateRequest,
+    @Request() req: JwtPayload,
   ): Promise<{ message: string }> {
     const userId = req.user.sub;
     const response = await this.boardService.delete(id, projectId, userId);
