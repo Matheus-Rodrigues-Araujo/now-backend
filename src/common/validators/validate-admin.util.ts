@@ -18,5 +18,5 @@ export async function validateAdmin(
     throw new UnauthorizedException('Only admins can perform this action');
   }
 
-  return project.adminId === userId;
+  return true;
 }
