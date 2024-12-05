@@ -26,12 +26,13 @@ export class AuthService {
       const verifyHash = await argon2.verify(userExists.hash, hash);
       if (!verifyHash) throw new UnauthorizedException('Invalid password!');
 
-      const payload: JwtPayload['user'] = {
-        firstName: userExists.firstName,
-        lastName: userExists.lastName || '',
-        sub: userExists.id,
+      const payload:JwtPayload = {
+        user: {
+          firstName: userExists.firstName,
+          lastName: userExists.lastName || '',
+          sub: userExists.id,
+        },
       };
-
       const access_token = await this.jwtService.signAsync(payload);
 
       return { access_token };
