@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Post,
   Delete,
-  Request,
   UseGuards,
   Put,
 } from '@nestjs/common';
@@ -16,6 +15,7 @@ import { CreateBoardDto, UpdateBoardDto } from './dto';
 import { BoardService } from './board.service';
 import { JwtPayload } from 'src/types';
 import { Board, Task } from '@prisma/client';
+import { CurrentUser } from 'src/common/decorators';
 
 @Controller('boards')
 @UseGuards(JwtAuthGuard)
@@ -31,9 +31,9 @@ export class BoardController {
   async findAllBoardTasks(
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: JwtPayload,
+    @CurrentUser() user: JwtPayload['user'],
   ): Promise<Task[]> {
-    const userId = req.user.sub;
+    const userId = user.sub;
     return await this.boardService.findAllBoardTasks(id, projectId, userId);
   }
 
@@ -41,9 +41,9 @@ export class BoardController {
   async findOne(
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: JwtPayload,
+    @CurrentUser() user: JwtPayload['user'],
   ): Promise<Board> {
-    const userId = req.user.sub;
+    const userId = user.sub;
     return await this.boardService.findOne(id, projectId, userId);
   }
 
@@ -52,10 +52,10 @@ export class BoardController {
     @Param('id', ParseIntPipe) id: number,
     @Query('projectId') projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
-    @Request() req: JwtPayload,
+    @CurrentUser() user: JwtPayload['user'],
   ): Promise<Board> {
-    const userId = req.user.sub;
-    
+    const userId = user.sub;
+
     return await this.boardService.update(
       updateBoardDto,
       id,
@@ -73,9 +73,9 @@ export class BoardController {
   async delete(
     @Param('id') id: number,
     @Query('projectId', ParseIntPipe) projectId: number,
-    @Request() req: JwtPayload,
+    @CurrentUser() user: JwtPayload['user'],
   ): Promise<{ message: string }> {
-    const userId = req.user.sub;
+    const userId = user.sub;
     const response = await this.boardService.delete(id, projectId, userId);
     return response;
   }
