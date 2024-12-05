@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from 'src/types';
@@ -14,15 +18,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<JwtPayload | null> {
-    const { sub, firstName, lastName } = payload['user'];
+  async validate(payload: JwtPayload): Promise<JwtPayload['user'] | null> {
+    const { sub, firstName, lastName } = payload.user;
+    if (!payload) throw new BadRequestException('Payload not found');
     const user = await this.prismaService.user.findUnique({
       where: { id: sub },
     });
 
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const userPayload = { user: { sub, firstName, lastName } };
+    const userPayload = { sub, firstName, lastName };
     return userPayload;
   }
 }
