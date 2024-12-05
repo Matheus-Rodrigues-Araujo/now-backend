@@ -1,7 +1,8 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtPayload } from 'src/types';
 import { UserService } from './user.service';
+import { CurrentUser } from 'src/common/decorators';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -9,18 +10,17 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('me')
-  me(@Request() req: JwtPayload) {
-    const { firstName, lastName, sub } = req.user;
+  me(@CurrentUser() user: JwtPayload['user']) {
+    const { firstName, lastName } = user;
     return {
       firstName,
       lastName,
-      sub,
     };
   }
 
   @Get('projects')
-  async findProjectsForUser(@Request() req: JwtPayload) {
-    const { sub } = req.user;
-    return this.userService.findProjectsForUser(sub);
+  async findProjectsForUser(@CurrentUser() user: JwtPayload['user']) {
+    const userId = user.sub;
+    return this.userService.findProjectsForUser(userId);
   }
 }
