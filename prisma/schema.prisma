@@ -111,7 +111,7 @@ model Workspace {
 
 model Project {
   id              Int               @id @default(autoincrement())
-  title           String            @unique
+  title           String            
   image           String?
   startDate       DateTime
   endDate         DateTime
