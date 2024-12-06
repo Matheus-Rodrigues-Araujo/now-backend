@@ -18,5 +18,6 @@ import { ProjectGuard } from './guards/project.guard';
     ProjectAdminGuard,
     ProjectGuard,
   ],
+  exports: [ProjectGuard, ProjectAdminGuard],
 })
 export class ProjectModule {}
