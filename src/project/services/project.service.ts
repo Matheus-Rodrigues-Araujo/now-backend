@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Project } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProjectDto, FindProjectDto } from '../dto';
 import { FormattedProject } from 'src/types';
 import { validateUserOrAdmin } from 'src/common/validators';
@@ -57,9 +56,16 @@ export class ProjectService {
       users: {
         connect: { id: userId },
       },
+      UsersOnProjects: {
+        create: {
+          userId: userId,
+          role: 'PROJECT_ADMIN',
+        },
+      },
     });
 
     if (!project) throw new BadRequestException('Project not created');
+
     return project;
   }
 
