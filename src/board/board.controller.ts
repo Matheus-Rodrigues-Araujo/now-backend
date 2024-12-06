@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  Query,
   ParseIntPipe,
   Post,
   Delete,
@@ -16,6 +15,7 @@ import { BoardService } from './board.service';
 import { JwtPayload } from 'src/types';
 import { Board, Task } from '@prisma/client';
 import { CurrentUser } from 'src/common/decorators';
+import { ProjectGuard } from 'src/project/guards/project.guard';
 
 @Controller('boards')
 @UseGuards(JwtAuthGuard)
@@ -27,41 +27,40 @@ export class BoardController {
     return await this.boardService.create(createBoardDto);
   }
 
-  @Get(':id/tasks')
+  @Get('project/:projectId')
+  @UseGuards(ProjectGuard)
+  async findBoardsFromProject(
+    @Param('projectId', ParseIntPipe) projectId: number,
+  ): Promise<Board[]> {
+    return await this.boardService.findBoardsFromProject(projectId);
+  }
+
+  @Get(':boardId/tasks')
+  @UseGuards(ProjectGuard)
   async findAllBoardTasks(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('projectId', ParseIntPipe) projectId: number,
-    @CurrentUser() user: JwtPayload['user'],
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
   ): Promise<Task[]> {
-    const userId = user.sub;
-    return await this.boardService.findAllBoardTasks(id, projectId, userId);
+    return await this.boardService.findAllBoardTasks(boardId, projectId);
   }
 
-  @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('projectId', ParseIntPipe) projectId: number,
+  @Get(':boardId')
+  @UseGuards(ProjectGuard)
+  async findById(
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
     @CurrentUser() user: JwtPayload['user'],
   ): Promise<Board> {
-    const userId = user.sub;
-    return await this.boardService.findOne(id, projectId, userId);
+    return await this.boardService.findById(boardId, projectId);
   }
 
-  @Put(':id')
+  @Put(':boardId')
   async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('projectId') projectId: number,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('projectId') projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
-    @CurrentUser() user: JwtPayload['user'],
   ): Promise<Board> {
-    const userId = user.sub;
-
-    return await this.boardService.update(
-      updateBoardDto,
-      id,
-      projectId,
-      userId,
-    );
+    return await this.boardService.update(boardId, projectId, updateBoardDto);
   }
 
   @Put('order')
@@ -69,14 +68,11 @@ export class BoardController {
     return await this.boardService.updateOrder(newOrder);
   }
 
-  @Delete(':id')
+  @Delete(':boardId')
   async delete(
-    @Param('id') id: number,
-    @Query('projectId', ParseIntPipe) projectId: number,
-    @CurrentUser() user: JwtPayload['user'],
-  ): Promise<{ message: string }> {
-    const userId = user.sub;
-    const response = await this.boardService.delete(id, projectId, userId);
-    return response;
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
+  ): Promise<void> {
+    await this.boardService.delete(boardId, projectId);
   }
 }
