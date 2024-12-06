@@ -6,7 +6,6 @@ import {
 import { Project } from '@prisma/client';
 import { CreateProjectDto, FindProjectDto } from '../dto';
 import { FormattedProject } from 'src/types';
-import { validateUserOrAdmin } from 'src/common/validators';
 import { ProjectRepository } from '../project.repository';
 import { formatProject } from 'src/common/helpers';
 
