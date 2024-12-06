@@ -52,7 +52,6 @@ model User {
   firstName         String
   lastName          String?
   hash              String
-  role              User_Role              @default(USER)
   image             String?
   profile           Profile?
   projects          Project[]              @relation("UserProjects")
