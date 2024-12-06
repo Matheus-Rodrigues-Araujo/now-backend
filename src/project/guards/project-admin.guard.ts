@@ -8,7 +8,7 @@ export class ProjectAdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const userId = request.user.sub;
-    const projectId = parseInt(request.params.id);
+    const projectId = parseInt(request.params.projectId);
 
     if (!userId || !projectId) return false;
 
