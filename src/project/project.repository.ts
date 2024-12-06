@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma, Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -66,7 +67,6 @@ export class ProjectRepository {
             id: true,
             firstName: true,
             lastName: true,
-            role: true,
             image: true,
             isActive: true,
           },
@@ -113,5 +113,39 @@ export class ProjectRepository {
     } catch {
       throw new BadRequestException('The project could not be deleted');
     }
+  }
+
+  async validateProjectUser(
+    projectId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const isProjectUser = await this.prismaService.usersOnProjects.findFirst({
+      where: { projectId, userId },
+    });
+
+    if (!isProjectUser)
+      throw new UnauthorizedException(
+        'Only project users can perform this action',
+      );
+
+    return true;
+  }
+
+  async validateProjectAdmin(
+    projectId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const isProjectAdmin = await this.prismaService.usersOnProjects.findFirst({
+      where: {
+        userId,
+        projectId,
+        role: 'PROJECT_ADMIN',
+      },
+    });
+
+    if (!isProjectAdmin)
+      throw new UnauthorizedException('Only admins can perform this action');
+
+    return true;
   }
 }
