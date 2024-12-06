@@ -5,6 +5,8 @@ import { ProjectService } from './services/project.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AdminProjectService } from './services/admin-project.service';
 import { ProjectRepository } from './project.repository';
+import { ProjectAdminGuard } from './guards/project-admin.guard';
+import { ProjectGuard } from './guards/project.guard';
 
 @Module({
   controllers: [ProjectController, AdminProjectController],
@@ -13,6 +15,8 @@ import { ProjectRepository } from './project.repository';
     AdminProjectService,
     PrismaService,
     ProjectRepository,
+    ProjectAdminGuard,
+    ProjectGuard,
   ],
 })
 export class ProjectModule {}
