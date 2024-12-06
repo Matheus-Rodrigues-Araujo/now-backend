@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ProjectRepository } from '../project.repository';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class ProjectGuard implements CanActivate {
@@ -9,7 +8,7 @@ export class ProjectGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const userId = request.user.sub;
-    const projectId = parseInt(request.params.id);
+    const projectId = parseInt(request.params.projectId);
 
     if (!userId || !projectId) return false;
 
