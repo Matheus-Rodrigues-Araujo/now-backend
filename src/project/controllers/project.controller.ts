@@ -39,10 +39,10 @@ export class ProjectController {
     return await this.projectService.findOneByIdOrTitle(query, userId);
   }
 
-  @Get(':id/users')
+  @Get(':projectId/users')
   @UseGuards(ProjectGuard)
   async findProjectMembers(
-    @Param('id', ParseIntPipe) projectId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
   ) {
     return await this.projectService.findProjectMembers(projectId);
   }
