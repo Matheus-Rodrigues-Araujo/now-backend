@@ -6,24 +6,32 @@ import {
 import { Board, Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto';
-import { validateAdmin, validateUserOrAdmin } from 'src/common/validators';
+import { validateUserOrAdmin } from 'src/common/validators';
+import { BoardRepository } from './board.repository';
 
 @Injectable()
 export class BoardService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private readonly boardRepository: BoardRepository,
+  ) {}
 
   async create(createBoardDto: CreateBoardDto): Promise<Board> {
-    if (!createBoardDto) throw new NotFoundException('Fiels empty');
-    const newBoard = await this.prismaService.board.create({
-      data: {
-        title: createBoardDto.title,
-        theme: createBoardDto.theme as Prisma.JsonObject,
-        projectId: createBoardDto.projectId,
+    if (!createBoardDto) throw new BadRequestException('Fiels empty');
+    const { title, theme, projectId } = createBoardDto;
+
+    const board = await this.boardRepository.create({
+      title,
+      theme: theme as Prisma.JsonObject,
+      project: {
+        connect: {
+          id: projectId,
+        },
       },
     });
 
-    if (!newBoard) throw new BadRequestException('Failed to create the board');
-    return newBoard;
+    if (!board) throw new BadRequestException('Failed to create the board');
+    return board;
   }
 
   async findOne(
@@ -79,7 +87,7 @@ export class BoardService {
     if (!updatedBoard) throw new BadRequestException('Board not updated');
     return await this.findOne(boardId, projectId, userId);
   }
-  
+
   async updateOrder(boards: { id: number; order: number }[]): Promise<Board[]> {
     const sortedBoards = boards.map((board) => {
       return this.prismaService.board.update({
@@ -96,7 +104,7 @@ export class BoardService {
     projectId: number,
     userId: number,
   ): Promise<{ message: string }> {
-    await validateAdmin(this.prismaService, projectId, userId);
+    // await validateAdmin(this.prismaService, projectId, userId);
 
     try {
       await this.prismaService.$transaction([
