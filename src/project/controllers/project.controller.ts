@@ -1,16 +1,14 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Post,
-  Request,
   Param,
   ParseIntPipe,
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ProjectGuard } from 'src/auth/guards/project.guard';
+import { ProjectGuard } from '../guards/project.guard';
 import { CreateProjectDto, FindProjectDto } from '../dto';
 import { ProjectService } from '../services/project.service';
 import { FormattedProject, JwtPayload } from 'src/types';
