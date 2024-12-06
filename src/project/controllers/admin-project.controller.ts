@@ -18,25 +18,25 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class AdminProjectController {
   constructor(private readonly projectRepository: ProjectRepository) {}
 
-  @Post(':id/users')
+  @Post(':projectId/users')
   async addUsersToProject(
-    @Param('id', ParseIntPipe) projectId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
     @Body() body: AddUsersToProjectDto,
   ) {
     const { usersIds } = body;
     return await this.projectRepository.addUsersToProject(projectId, usersIds);
   }
 
-  @Put(':id')
+  @Put(':projectId')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateProjectDto: UpdateProjectDto,
   ) {
-    return await this.projectRepository.update(id, updateProjectDto);
+    return await this.projectRepository.update(projectId, updateProjectDto);
   }
 
-  @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    await this.projectRepository.deleteWithDependencies(id);
+  @Delete(':projectId')
+  async delete(@Param('projectId', ParseIntPipe) projectId: number) {
+    await this.projectRepository.deleteWithDependencies(projectId);
   }
 }
