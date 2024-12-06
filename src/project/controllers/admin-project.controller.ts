@@ -8,7 +8,7 @@ import {
   UseGuards,
   Post,
 } from '@nestjs/common';
-import { ProjectAdminGuard } from 'src/auth/guards/project-admin.guard';
+import { ProjectAdminGuard } from '../guards/project-admin.guard';
 import { AddUsersToProjectDto, UpdateProjectDto } from '../dto';
 import { ProjectRepository } from '../project.repository';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
