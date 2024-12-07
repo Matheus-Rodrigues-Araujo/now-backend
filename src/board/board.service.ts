@@ -48,6 +48,18 @@ export class BoardService {
     return await this.boardRepository.findAllBoardTasks(boardId, projectId);
   }
 
+  async findBoardsWithTasks(
+    projectId: number,
+  ): Promise<Prisma.BoardGetPayload<{ include: { tasks: true } }>[]> {
+    const boardsAndTasks =
+      await this.boardRepository.findBoardsWithTasks(projectId);
+
+    if (!boardsAndTasks)
+      throw new NotFoundException('No boards and tasks created');
+
+    return boardsAndTasks;
+  }
+
   async update(
     boardId: number,
     projectId: number,
