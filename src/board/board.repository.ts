@@ -16,16 +16,6 @@ export class BoardRepository {
     });
   }
 
-  async findById(boardId: number, projectId: number): Promise<Board> {
-    return await this.prismaService.board.findUnique({
-      where: { id: boardId, projectId },
-    });
-  }
-
-  async findByTitle(title: string): Promise<Board> {
-    return await this.prismaService.board.findFirst({ where: { title } });
-  }
-
   async findAllBoardTasks(boardId: number, projectId: number): Promise<Task[]> {
     const board = await this.prismaService.board.findFirst({
       where: { id: boardId, projectId },
@@ -35,6 +25,27 @@ export class BoardRepository {
     });
 
     return board.tasks;
+  }
+
+  async findBoardsWithTasks(
+    projectId: number,
+  ): Promise<Prisma.BoardGetPayload<{ include: { tasks: true } }>[]> {
+    return await this.prismaService.board.findMany({
+      where: { projectId },
+      include: {
+        tasks: true,
+      },
+    });
+  }
+
+  async findById(boardId: number, projectId: number): Promise<Board> {
+    return await this.prismaService.board.findUnique({
+      where: { id: boardId, projectId },
+    });
+  }
+
+  async findByTitle(title: string): Promise<Board> {
+    return await this.prismaService.board.findFirst({ where: { title } });
   }
 
   async update(
