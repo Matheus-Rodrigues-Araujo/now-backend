@@ -17,7 +17,7 @@ import { Board, Task } from '@prisma/client';
 import { CurrentUser } from 'src/common/decorators';
 import { ProjectGuard } from 'src/project/guards/project.guard';
 
-@Controller('boards')
+@Controller('projects/:projectId/boards')
 @UseGuards(JwtAuthGuard)
 export class BoardController {
   constructor(private boardService: BoardService) {}
@@ -27,7 +27,7 @@ export class BoardController {
     return await this.boardService.create(createBoardDto);
   }
 
-  @Get('project/:projectId')
+  @Get()
   @UseGuards(ProjectGuard)
   async findBoardsFromProject(
     @Param('projectId', ParseIntPipe) projectId: number,
@@ -42,6 +42,14 @@ export class BoardController {
     @Param('projectId', ParseIntPipe) projectId: number,
   ): Promise<Task[]> {
     return await this.boardService.findAllBoardTasks(boardId, projectId);
+  }
+
+  @Get('boards-with-tasks')
+  @UseGuards(ProjectGuard)
+  async findBoardsAndTasks(
+    @Param('projectId', ParseIntPipe) projectId: number,
+  ) {
+    return await this.boardService.findBoardsWithTasks(projectId);
   }
 
   @Get(':boardId')
