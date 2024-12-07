@@ -144,9 +144,9 @@ model Board {
 
 model Task {
   id          Int         @id @default(autoincrement())
-  title       String      @unique
+  title       String
   description String?
-  endDate     DateTime
+  endDate     DateTime?
   level       Task_Level?
   status      Task_Status @default(TODO)
   board       Board       @relation(fields: [boardId], references: [id])
