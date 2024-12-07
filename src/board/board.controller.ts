@@ -16,6 +16,7 @@ import { JwtPayload } from 'src/types';
 import { Board, Task } from '@prisma/client';
 import { CurrentUser } from 'src/common/decorators';
 import { ProjectGuard } from 'src/project/guards/project.guard';
+import { ProjectAdminGuard } from 'src/project/guards/project-admin.guard';
 
 @Controller('projects/:projectId/boards')
 @UseGuards(JwtAuthGuard)
@@ -63,9 +64,10 @@ export class BoardController {
   }
 
   @Put(':boardId')
+  @UseGuards(ProjectAdminGuard)
   async update(
     @Param('boardId', ParseIntPipe) boardId: number,
-    @Param('projectId') projectId: number,
+    @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
   ): Promise<Board> {
     return await this.boardService.update(boardId, projectId, updateBoardDto);
