@@ -66,7 +66,7 @@ export class BoardService {
     updateBoardDto: UpdateBoardDto,
   ): Promise<Board> {
     const { title, theme } = updateBoardDto;
-    const data: Partial<Prisma.BoardUpdateInput> = {};
+    const data: Prisma.BoardUpdateInput = {};
 
     if (title !== undefined) data.title = title;
     if (theme !== undefined) data.theme = theme as Prisma.JsonObject;
