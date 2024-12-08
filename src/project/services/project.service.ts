@@ -13,7 +13,7 @@ import { formatProject } from 'src/common/helpers';
 export class ProjectService {
   constructor(private readonly projecRepository: ProjectRepository) {}
 
-  async findOneByIdOrTitle(
+  async findProjectByIdOrTitle(
     query: FindProjectDto,
     userId: number,
   ): Promise<FormattedProject> {

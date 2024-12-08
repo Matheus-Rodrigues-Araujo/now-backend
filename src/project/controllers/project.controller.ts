@@ -21,7 +21,7 @@ export class ProjectController {
   constructor(private projectService: ProjectService) {}
 
   @Post()
-  async createAdminAsProject(
+  async createProjectAsAdmin(
     @Body() project: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ) {
@@ -31,12 +31,12 @@ export class ProjectController {
 
   @Get('find')
   @UseGuards(ProjectGuard)
-  async findOneByIdOrTitle(
+  async findProjectByIdOrTitle(
     @Query() query: FindProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ): Promise<FormattedProject> {
     const userId = user.sub;
-    return await this.projectService.findOneByIdOrTitle(query, userId);
+    return await this.projectService.findProjectByIdOrTitle(query, userId);
   }
 
   @Get(':projectId/users')

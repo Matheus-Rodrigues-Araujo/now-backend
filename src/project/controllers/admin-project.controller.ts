@@ -28,7 +28,7 @@ export class AdminProjectController {
   }
 
   @Put(':projectId')
-  async update(
+  async updateProject(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateProjectDto: UpdateProjectDto,
   ) {
@@ -37,6 +37,6 @@ export class AdminProjectController {
 
   @Delete(':projectId')
   async delete(@Param('projectId', ParseIntPipe) projectId: number) {
-    await this.projectRepository.deleteWithDependencies(projectId);
+    await this.projectRepository.delete(projectId);
   }
 }

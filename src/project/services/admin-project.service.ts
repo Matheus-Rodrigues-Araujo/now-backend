@@ -35,7 +35,7 @@ export class AdminProjectService {
     return { message: 'User(s) added to project successfully!' };
   }
 
-  async update(
+  async updateProject(
     updateProjectDto: UpdateProjectDto,
     projectId: number,
     userId: number,
@@ -51,7 +51,7 @@ export class AdminProjectService {
     return formatProject(project, userId);
   }
 
-  async delete(projectId: number): Promise<{ message: string }> {
-    return await this.projectRepository.deleteWithDependencies(projectId);
+  async deleteProject(projectId: number): Promise<{ message: string }> {
+    return await this.projectRepository.delete(projectId);
   }
 }
