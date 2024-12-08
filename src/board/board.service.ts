@@ -15,7 +15,7 @@ export class BoardService {
     private readonly boardRepository: BoardRepository,
   ) {}
 
-  async create(createBoardDto: CreateBoardDto): Promise<Board> {
+  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
     if (!createBoardDto) throw new BadRequestException('Fiels empty');
     const { title, theme, projectId } = createBoardDto;
 
@@ -38,7 +38,7 @@ export class BoardService {
     return boards;
   }
 
-  async findById(boardId: number, projectId: number): Promise<Board> {
+  async findBoardById(boardId: number, projectId: number): Promise<Board> {
     const board = await this.boardRepository.findById(boardId, projectId);
     if (!board) throw new NotFoundException('Board not found');
     return board;
@@ -60,7 +60,7 @@ export class BoardService {
     return boardsAndTasks;
   }
 
-  async update(
+  async updateBoard(
     boardId: number,
     projectId: number,
     updateBoardDto: UpdateBoardDto,
@@ -81,7 +81,7 @@ export class BoardService {
     return updatedBoard;
   }
 
-  async updateOrder(boards: { id: number; order: number }[]): Promise<Board[]> {
+  async updateBoardOrder(boards: { id: number; order: number }[]): Promise<Board[]> {
     const sortedBoards = boards.map((board) => {
       return this.prismaService.board.update({
         where: { id: board.id },
@@ -92,8 +92,8 @@ export class BoardService {
     return await Promise.all(sortedBoards);
   }
 
-  async delete(boardId: number, projectId: number): Promise<void> {
-    await this.findById(boardId, projectId);
+  async deleteBoard(boardId: number, projectId: number): Promise<void> {
+    await this.findBoardById(boardId, projectId);
     await this.boardRepository.delete(boardId);
   }
 }

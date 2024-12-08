@@ -25,7 +25,7 @@ export class BoardController {
 
   @Post()
   async create(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
-    return await this.boardService.create(createBoardDto);
+    return await this.boardService.createBoard(createBoardDto);
   }
 
   @Get()
@@ -60,7 +60,7 @@ export class BoardController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @CurrentUser() user: JwtPayload['user'],
   ): Promise<Board> {
-    return await this.boardService.findById(boardId, projectId);
+    return await this.boardService.findBoardById(boardId, projectId);
   }
 
   @Put(':boardId')
@@ -70,12 +70,12 @@ export class BoardController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
   ): Promise<Board> {
-    return await this.boardService.update(boardId, projectId, updateBoardDto);
+    return await this.boardService.updateBoard(boardId, projectId, updateBoardDto);
   }
 
   @Put('order')
   async updateOrder(@Body() newOrder: { id: number; order: number }[]) {
-    return await this.boardService.updateOrder(newOrder);
+    return await this.boardService.updateBoardOrder(newOrder);
   }
 
   @Delete(':boardId')
@@ -83,6 +83,6 @@ export class BoardController {
     @Param('boardId', ParseIntPipe) boardId: number,
     @Param('projectId', ParseIntPipe) projectId: number,
   ): Promise<void> {
-    await this.boardService.delete(boardId, projectId);
+    await this.boardService.deleteBoard(boardId, projectId);
   }
 }
