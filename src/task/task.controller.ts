@@ -14,7 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 import { ProjectAdminGuard } from 'src/project/guards/project-admin.guard';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto } from './dto';
 
 @Controller('projects/:projectId/boards/:boardId/tasks')
 @UseGuards(JwtAuthGuard)
