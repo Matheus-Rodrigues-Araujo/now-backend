@@ -98,7 +98,7 @@ export class ProjectRepository {
     return project;
   }
 
-  async deleteWithDependencies(
+  async delete(
     projectId: number,
   ): Promise<{ message: string }> {
     try {
