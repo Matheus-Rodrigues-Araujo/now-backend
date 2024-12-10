@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Board, Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateBoardOrder } from './dto';
 
 @Injectable()
 export class BoardRepository {
@@ -59,10 +60,13 @@ export class BoardRepository {
     });
   }
 
-  async updateOrder(boards: { id: number; order: number }[]): Promise<Board[]> {
+  async updateOrder(
+    projectId: number,
+    boards: UpdateBoardOrder[],
+  ): Promise<Board[]> {
     const sortedBoards = boards.map((board) => {
       return this.prismaService.board.update({
-        where: { id: board.id },
+        where: { id: board.id, projectId },
         data: { order: board.order },
       });
     });
