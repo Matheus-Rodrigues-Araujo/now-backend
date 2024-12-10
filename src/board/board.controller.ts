@@ -8,9 +8,10 @@ import {
   Delete,
   UseGuards,
   Put,
+  Patch,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CreateBoardDto, UpdateBoardDto } from './dto';
+import { CreateBoardDto, UpdateBoardDto, UpdateBoardOrder } from './dto';
 import { BoardService } from './board.service';
 import { JwtPayload } from 'src/types';
 import { Board, Task } from '@prisma/client';
@@ -70,12 +71,20 @@ export class BoardController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateBoardDto: UpdateBoardDto,
   ): Promise<Board> {
-    return await this.boardService.updateBoard(boardId, projectId, updateBoardDto);
+    return await this.boardService.updateBoard(
+      boardId,
+      projectId,
+      updateBoardDto,
+    );
   }
 
-  @Put('order')
-  async updateOrder(@Body() newOrder: { id: number; order: number }[]) {
-    return await this.boardService.updateBoardOrder(newOrder);
+  @Patch('order')
+  @UseGuards(ProjectAdminGuard)
+  async updateBoardsOrder(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body() boards: UpdateBoardOrder[],
+  ) {
+    return await this.boardService.updateBoardsOrder(projectId, boards);
   }
 
   @Delete(':boardId')
