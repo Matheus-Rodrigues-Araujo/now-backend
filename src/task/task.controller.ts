@@ -5,8 +5,10 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Task } from '@prisma/client';
@@ -14,7 +16,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskService } from './task.service';
 import { ProjectAdminGuard } from 'src/project/guards/project-admin.guard';
-import { UpdateTaskDto } from './dto';
+import { MoveTaskDto, UpdateTaskDto } from './dto';
+import { ProjectGuard } from 'src/project/guards/project.guard';
 
 @Controller('projects/:projectId/boards/:boardId/tasks')
 @UseGuards(JwtAuthGuard)
@@ -37,6 +40,16 @@ export class TaskController {
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
     return await this.taskService.updateTask(boardId, updateTaskDto);
+  }
+
+  @Patch('move/:taskId')
+  @UseGuards(ProjectGuard)
+  async moveTaskToBoard(
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Body() moveTaskDto: MoveTaskDto,
+  ): Promise<Task> {
+    return await this.taskService.updateTaskBoard(boardId, taskId, moveTaskDto);
   }
 
   @Delete(':taskId')
