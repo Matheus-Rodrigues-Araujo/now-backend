@@ -49,7 +49,7 @@ export class TaskController {
     @Param('taskId', ParseIntPipe) taskId: number,
     @Body() moveTaskDto: MoveTaskDto,
   ): Promise<Task> {
-    return await this.taskService.updateTaskBoard(boardId, taskId, moveTaskDto);
+    return await this.taskService.moveTaskToBoard(boardId, taskId, moveTaskDto);
   }
 
   @Delete(':taskId')
