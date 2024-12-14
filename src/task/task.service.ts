@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TaskRepository } from './task.repository';
 import { Task } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { MoveTaskDto } from './dto';
 
 @Injectable()
 export class TaskService {
@@ -33,6 +38,18 @@ export class TaskService {
     updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
     return await this.taskRepository.update(taskId, updateTaskDto);
+  }
+
+  async moveTaskToBoard(
+    boardId: number,
+    taskId: number,
+    moveTaskDto: MoveTaskDto,
+  ): Promise<Task> {
+    return await this.taskRepository.moveTaskToBoard(
+      boardId,
+      taskId,
+      moveTaskDto,
+    );
   }
 
   async deleteTask(boardId: number, taskId: number): Promise<void> {
