@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateTaskBoardDto, UpdateTaskDto, UpdateTaskOrderDto } from './dto';
+import { MoveTaskDto, UpdateTaskDto, UpdateTaskOrderDto } from './dto';
 
 @Injectable()
 export class TaskRepository {
@@ -35,23 +35,30 @@ export class TaskRepository {
     );
   }
 
-  async updateTaskBoard(task: UpdateTaskBoardDto): Promise<Task> {
+  async moveTaskToBoard(
+    boardId: number,
+    taskId: number,
+    moveTaskDto: MoveTaskDto,
+  ): Promise<Task> {
     return this.prismaService.$transaction(async (prisma) => {
       await prisma.task.updateMany({
         where: {
-          boardId: task.previousBoardId,
-          order: { gt: task.previousOrder },
+          boardId,
+          order: { gt: moveTaskDto.previousOrder },
         },
         data: { order: { decrement: 1 } },
       });
 
       const updateTask = await prisma.task.update({
-        where: { id: task.id },
-        data: { order: task.order, boardId: task.boardId },
+        where: { id: taskId },
+        data: { order: moveTaskDto.order, boardId: moveTaskDto.newBoardId },
       });
 
       await prisma.task.updateMany({
-        where: { boardId: task.boardId, order: { gte: task.order } },
+        where: {
+          boardId: moveTaskDto.newBoardId,
+          order: { gte: moveTaskDto.order },
+        },
         data: { order: { increment: 1 } },
       });
 
