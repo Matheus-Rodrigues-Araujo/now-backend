@@ -7,11 +7,15 @@ import { AdminProjectService } from './services/admin-project.service';
 import { ProjectRepository } from './project.repository';
 import { ProjectAdminGuard } from './guards/project-admin.guard';
 import { ProjectGuard } from './guards/project.guard';
+import { HistoryService } from 'src/history/history.service';
+import { HistoryRepository } from 'src/history/history.repository';
 
 @Module({
   controllers: [ProjectController, AdminProjectController],
   providers: [
     ProjectService,
+    HistoryService,
+    HistoryRepository,
     AdminProjectService,
     PrismaService,
     ProjectRepository,
