@@ -127,19 +127,15 @@ export class ProjectRepository {
     });
   }
 
-  async createAdminProject(
+  async createProjectWithHistory(
     userId: number,
     firstName: string,
     data: Prisma.ProjectCreateInput,
   ): Promise<Project> {
-    const existingProject = await this.findExistingProject(userId, data.title);
-    if (existingProject)
-      throw new BadRequestException(
-        'You already have a project with this title',
-      );
-
     return this.prismaService.$transaction(async (prisma) => {
       const project = await this.create(data);
+      if(!project) throw new BadRequestException("Project not created")
+
       await this.historyService.createHistory(userId, project.id, {
         description: `${firstName} created project as admin: ${project.title}`,
         entityType: Entity_Type.PROJECT,
