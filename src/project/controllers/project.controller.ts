@@ -21,7 +21,7 @@ export class ProjectController {
   constructor(private projectService: ProjectService) {}
 
   @Post()
-  async createProjectAsAdmin(
+  async createAdminProject(
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ) {
