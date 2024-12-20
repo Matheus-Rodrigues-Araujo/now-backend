@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Project } from '@prisma/client';
+import { Prisma, Project } from '@prisma/client';
 import { CreateProjectDto, FindProjectDto } from '../dto';
 import { Action_Type, Entity_Type, FormattedProject } from 'src/types';
 import { ProjectRepository } from '../project.repository';
@@ -32,58 +32,55 @@ export class ProjectService {
     }
   }
 
-  async createAdminProject(
+  private prepareProjectCreationData(
     userId: number,
-    firstName: string,
     createProjectDto: CreateProjectDto,
-  ): Promise<Project> {
-    // const existingProject = await this.projecRepository.findByTitleAndAdminId(
-    //   createProjectDto.title,
-    //   userId,
-    // );
-
-    // if (existingProject)
-    //   throw new BadRequestException(
-    //     'You already have a project with this title',
-    //   );
-
-    // const project = await this.projecRepository.create({
-    //   ...createProjectDto,
-    //   admin: {
-    //     connect: { id: userId },
-    //   },
-    //   users: {
-    //     connect: { id: userId },
-    //   },
-    //   UsersOnProjects: {
-    //     create: {
-    //       userId: userId,
-    //       role: 'PROJECT_ADMIN',
-    //     },
-    //   },
-    // });
-
-    // await this.historyService.createHistory(userId, project.id, {
-    //   description: `Created project as admin: ${project.title}`,
-    //   actionType: Action_Type.CREATE,
-    //   entityType: Entity_Type.PROJECT
-    // });
-
-    return await this.projecRepository.createAdminProject(userId, firstName, {
+  ): Prisma.ProjectCreateInput {
+    return {
       ...createProjectDto,
       admin: {
         connect: { id: userId },
       },
       users: {
-        connect: { id: userId },
+        connect: {
+          id: userId,
+        },
       },
       UsersOnProjects: {
         create: {
-          userId: userId,
+          userId,
           role: 'PROJECT_ADMIN',
         },
       },
-    });
+    };
+  }
+
+  async createAdminProject(
+    userId: number,
+    firstName: string,
+    createProjectDto: CreateProjectDto,
+  ): Promise<Project> {
+    await this.validateProjectExistence(userId, createProjectDto.title);
+
+    const projectData = this.prepareProjectCreationData(userId, createProjectDto);
+    
+    return await this.projecRepository.createProjectWithHistory(
+      userId,
+      firstName,
+      projectData,
+    );
+  }
+
+  private async validateProjectExistence(userId: number, title: string) {
+    const existingProject = await this.projecRepository.findExistingProject(
+      userId,
+      title,
+    );
+    if (existingProject) {
+      throw new BadRequestException(
+        'You already have a project with this title',
+      );
+    }
   }
 
   async findProjectMembers(projectId: number) {
