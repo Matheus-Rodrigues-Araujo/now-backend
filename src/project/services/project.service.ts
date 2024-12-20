@@ -5,13 +5,17 @@ import {
 } from '@nestjs/common';
 import { Project } from '@prisma/client';
 import { CreateProjectDto, FindProjectDto } from '../dto';
-import { FormattedProject } from 'src/types';
+import { Action_Type, Entity_Type, FormattedProject } from 'src/types';
 import { ProjectRepository } from '../project.repository';
 import { formatProject } from 'src/common/helpers';
+import { HistoryService } from 'src/history/history.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly projecRepository: ProjectRepository) {}
+  constructor(
+    private readonly projecRepository: ProjectRepository,
+    private readonly historyService: HistoryService,
+  ) {}
 
   async findProjectByIdOrTitle(
     query: FindProjectDto,
@@ -28,27 +32,45 @@ export class ProjectService {
     }
   }
 
-  async createProjectAsAdmin(
-    createProjectDto: CreateProjectDto,
+  async createAdminProject(
     userId: number,
+    firstName: string,
+    createProjectDto: CreateProjectDto,
   ): Promise<Project> {
-    const { title, image, startDate, endDate, isActive } = createProjectDto;
-    const existingProject = await this.projecRepository.findByTitleAndAdminId(
-      title,
-      userId,
-    );
+    // const existingProject = await this.projecRepository.findByTitleAndAdminId(
+    //   createProjectDto.title,
+    //   userId,
+    // );
 
-    if (existingProject)
-      throw new BadRequestException(
-        'You already have a project with this title',
-      );
+    // if (existingProject)
+    //   throw new BadRequestException(
+    //     'You already have a project with this title',
+    //   );
 
-    const project = await this.projecRepository.create({
-      title,
-      image,
-      startDate,
-      endDate,
-      isActive,
+    // const project = await this.projecRepository.create({
+    //   ...createProjectDto,
+    //   admin: {
+    //     connect: { id: userId },
+    //   },
+    //   users: {
+    //     connect: { id: userId },
+    //   },
+    //   UsersOnProjects: {
+    //     create: {
+    //       userId: userId,
+    //       role: 'PROJECT_ADMIN',
+    //     },
+    //   },
+    // });
+
+    // await this.historyService.createHistory(userId, project.id, {
+    //   description: `Created project as admin: ${project.title}`,
+    //   actionType: Action_Type.CREATE,
+    //   entityType: Entity_Type.PROJECT
+    // });
+
+    return await this.projecRepository.createAdminProject(userId, firstName, {
+      ...createProjectDto,
       admin: {
         connect: { id: userId },
       },
@@ -62,10 +84,6 @@ export class ProjectService {
         },
       },
     });
-
-    if (!project) throw new BadRequestException('Project not created');
-
-    return project;
   }
 
   async findProjectMembers(projectId: number) {
