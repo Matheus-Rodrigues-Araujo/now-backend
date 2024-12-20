@@ -15,16 +15,16 @@ enum User_Role {
   VIEWER
 }
 
+enum Entity_Type {
+  USER
+  TASK
+  PROJECT
+  WORKSPACE
+}
+
 enum Profile_Type {
   COMPANY
   INDIVIDUAL
-}
-
-enum Task_Level {
-  EASY
-  MEDIUM
-  HARD
-  EXTREME
 }
 
 enum Task_Status {
@@ -40,7 +40,7 @@ enum Organization_Role {
   CONTRACTOR
 }
 
-enum History_Action {
+enum Action_Type {
   CREATE
   UPDATE
   DELETE
@@ -51,6 +51,7 @@ model User {
   email             String                 @unique
   firstName         String
   lastName          String?
+  phone             String?
   hash              String
   image             String?
   profile           Profile?
@@ -63,6 +64,7 @@ model User {
   UsersOnProjects   UsersOnProjects[]
   UsersOnWorkspaces UsersOnWorkspaces[]
   organizations     UsersOnOrganizations[]
+  Notification      Notification[]
 
   @@map("users")
 }
@@ -71,7 +73,6 @@ model Profile {
   id        Int          @id @default(autoincrement())
   user      User         @relation(fields: [userId], references: [id])
   userId    Int          @unique
-  phone     String?
   address   String?
   country   String
   timezone  String?
@@ -98,7 +99,7 @@ model Workspace {
   id                Int                 @id @default(autoincrement())
   title             String              @unique
   image             String?
-  projects          Project[]           
+  projects          Project[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   UsersOnWorkspaces UsersOnWorkspaces[]
@@ -110,7 +111,7 @@ model Workspace {
 
 model Project {
   id              Int               @id @default(autoincrement())
-  title           String            
+  title           String
   image           String?
   startDate       DateTime
   endDate         DateTime
@@ -118,12 +119,13 @@ model Project {
   users           User[]            @relation("UserProjects")
   admin           User              @relation("AdminProjects", fields: [adminId], references: [id])
   adminId         Int
-  workspace       Workspace?         @relation(fields: [workspaceId], references: [id])
+  workspace       Workspace?        @relation(fields: [workspaceId], references: [id])
   workspaceId     Int?
   UsersOnProjects UsersOnProjects[]
   boards          Board[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  tags            Tag[]
 
   @@map("projects")
 }
@@ -147,28 +149,52 @@ model Task {
   title       String
   description String?
   endDate     DateTime?
-  level       Task_Level?
   status      Task_Status @default(TODO)
   board       Board       @relation(fields: [boardId], references: [id])
   boardId     Int
   order       Int?        @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  tags        Tag[]
 
   @@map("tasks")
 }
 
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  Task      Task?    @relation(fields: [taskId], references: [id])
+  taskId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@map("tags")
+}
+
 model History {
   id          Int            @id @default(autoincrement())
-  entityType  String
-  entityId    Int
-  actionType  History_Action
   description String
   user        User           @relation(fields: [userId], references: [id])
   userId      Int
+  entityId    Int
+  entityType  Entity_Type
+  actionType  Action_Type
   createdAt   DateTime       @default(now())
 
   @@map("history")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
 }
 
 model UsersOnOrganizations {
