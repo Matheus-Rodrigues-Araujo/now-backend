@@ -5,14 +5,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma, Project } from '@prisma/client';
+import { HistoryService } from 'src/history/history.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Action_Type, Entity_Type } from 'src/types';
 
 @Injectable()
 export class ProjectRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly historyService: HistoryService,
+  ) {}
 
   async create(data: Prisma.ProjectCreateInput): Promise<Project> {
-    return await this.prismaService.project.create({ data });
+    const project = await this.prismaService.project.create({ data });
+    if (!project) throw new BadRequestException('Project not created');
+
+    return project;
   }
 
   async findById(projectId: number): Promise<Project> {
@@ -98,9 +106,7 @@ export class ProjectRepository {
     return project;
   }
 
-  async delete(
-    projectId: number,
-  ): Promise<{ message: string }> {
+  async delete(projectId: number): Promise<{ message: string }> {
     try {
       await this.prismaService.$transaction([
         this.prismaService.usersOnProjects.deleteMany({ where: { projectId } }),
@@ -113,6 +119,35 @@ export class ProjectRepository {
     } catch {
       throw new BadRequestException('The project could not be deleted');
     }
+  }
+
+  async findExistingProject(userId: number, title: string): Promise<Project> {
+    return await this.prismaService.project.findFirst({
+      where: { title: title, adminId: userId },
+    });
+  }
+
+  async createAdminProject(
+    userId: number,
+    firstName: string,
+    data: Prisma.ProjectCreateInput,
+  ): Promise<Project> {
+    const existingProject = await this.findExistingProject(userId, data.title);
+    if (existingProject)
+      throw new BadRequestException(
+        'You already have a project with this title',
+      );
+
+    return this.prismaService.$transaction(async (prisma) => {
+      const project = await this.create(data);
+      await this.historyService.createHistory(userId, project.id, {
+        description: `${firstName} created project as admin: ${project.title}`,
+        entityType: Entity_Type.PROJECT,
+        actionType: Action_Type.CREATE,
+      });
+
+      return project;
+    });
   }
 
   async validateProjectUser(
