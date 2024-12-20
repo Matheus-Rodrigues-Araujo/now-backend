@@ -22,11 +22,12 @@ export class ProjectController {
 
   @Post()
   async createProjectAsAdmin(
-    @Body() project: CreateProjectDto,
+    @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ) {
     const userId = user.sub;
-    return await this.projectService.createProjectAsAdmin(project, userId);
+    const firstName = user.firstName;
+    return await this.projectService.createAdminProject(userId, firstName, createProjectDto);
   }
 
   @Get('find')
