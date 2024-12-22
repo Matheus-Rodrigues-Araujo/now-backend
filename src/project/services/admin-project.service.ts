@@ -4,7 +4,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { formatProject } from 'src/common/helpers';
 import { FormattedProject } from 'src/types';
 import { UpdateProjectDto } from '../dto';
