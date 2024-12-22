@@ -4,10 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { TaskRepository } from './task.repository';
-import { Task } from '@prisma/client';
+import { Prisma, Task } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { MoveTaskDto } from './dto';
+import { JwtPayload } from 'src/types';
 
 @Injectable()
 export class TaskService {
@@ -19,18 +20,27 @@ export class TaskService {
     return task;
   }
 
-  async createTask(
+  private prepareTaskCreationData(
     boardId: number,
     createTaskDto: CreateTaskDto,
-  ): Promise<Task> {
-    return await this.taskRepository.create(boardId, {
+  ): Prisma.TaskCreateInput {
+    return {
       ...createTaskDto,
       board: {
         connect: {
           id: boardId,
         },
       },
-    });
+    };
+  }
+
+  async createTaskWithHistory(
+    user: JwtPayload['user'],
+    boardId: number,
+    createTaskDto: CreateTaskDto,
+  ): Promise<Task> {
+    const taskData = this.prepareTaskCreationData(boardId, createTaskDto);
+    return this.taskRepository.createTaskWithHistory(user, boardId, taskData);
   }
 
   async updateTask(
