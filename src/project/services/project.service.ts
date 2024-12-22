@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, Project } from '@prisma/client';
-import { CreateProjectDto, FindProjectDto } from '../dto';
-import { FormattedProject } from 'src/types';
+import { CreateProjectDto, FindProjectDto, UpdateProjectDto } from '../dto';
+import { FormattedProject, JwtPayload } from 'src/types';
 import { ProjectRepository } from '../project.repository';
 import { formatProject } from 'src/common/helpers';
 
@@ -52,10 +52,10 @@ export class ProjectService {
   }
 
   async createAdminProject(
-    userId: number,
-    firstName: string,
+    user: JwtPayload['user'],
     createProjectDto: CreateProjectDto,
   ): Promise<Project> {
+    const userId = user.sub;
     await this.validateProjectExistence(userId, createProjectDto.title);
 
     const projectData = this.prepareProjectCreationData(
@@ -64,9 +64,20 @@ export class ProjectService {
     );
 
     return await this.projecRepository.createProjectWithHistory(
-      userId,
-      firstName,
+      user,
       projectData,
+    );
+  }
+
+  async updateProjectWithHistory(
+    projectId: number,
+    user: JwtPayload['user'],
+    updateProjectDto: UpdateProjectDto,
+  ): Promise<Project> {
+    return this.projecRepository.updateProjectWithHistory(
+      projectId,
+      user,
+      updateProjectDto,
     );
   }
 
