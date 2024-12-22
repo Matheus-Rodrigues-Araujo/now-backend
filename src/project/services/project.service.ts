@@ -5,17 +5,13 @@ import {
 } from '@nestjs/common';
 import { Prisma, Project } from '@prisma/client';
 import { CreateProjectDto, FindProjectDto } from '../dto';
-import { Action_Type, Entity_Type, FormattedProject } from 'src/types';
+import { FormattedProject } from 'src/types';
 import { ProjectRepository } from '../project.repository';
 import { formatProject } from 'src/common/helpers';
-import { HistoryService } from 'src/history/history.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(
-    private readonly projecRepository: ProjectRepository,
-    private readonly historyService: HistoryService,
-  ) {}
+  constructor(private readonly projecRepository: ProjectRepository) {}
 
   async findProjectByIdOrTitle(
     query: FindProjectDto,
@@ -62,8 +58,11 @@ export class ProjectService {
   ): Promise<Project> {
     await this.validateProjectExistence(userId, createProjectDto.title);
 
-    const projectData = this.prepareProjectCreationData(userId, createProjectDto);
-    
+    const projectData = this.prepareProjectCreationData(
+      userId,
+      createProjectDto,
+    );
+
     return await this.projecRepository.createProjectWithHistory(
       userId,
       firstName,

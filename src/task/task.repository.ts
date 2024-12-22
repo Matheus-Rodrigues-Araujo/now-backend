@@ -3,7 +3,8 @@ import { Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MoveTaskDto, UpdateTaskDto, UpdateTaskOrderDto } from './dto';
 import { HistoryService } from 'src/history/history.service';
-import { Action_Type, Entity_Type, JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/types';
+import { Action_Type, Entity_Type } from 'src/history/history.constants';
 
 @Injectable()
 export class TaskRepository {
