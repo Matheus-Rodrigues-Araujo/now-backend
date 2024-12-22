@@ -12,6 +12,8 @@ import { ProjectAdminGuard } from '../guards/project-admin.guard';
 import { AddUsersToProjectDto, UpdateProjectDto } from '../dto';
 import { ProjectRepository } from '../project.repository';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/common/decorators';
+import { JwtPayload } from 'src/types';
 
 @Controller('admin/projects')
 @UseGuards(JwtAuthGuard, ProjectAdminGuard)
@@ -31,12 +33,20 @@ export class AdminProjectController {
   async updateProject(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Body() updateProjectDto: UpdateProjectDto,
+    @CurrentUser() user: JwtPayload['user'],
   ) {
-    return await this.projectRepository.update(projectId, updateProjectDto);
+    return await this.projectRepository.updateProjectWithHistory(
+      projectId,
+      user,
+      updateProjectDto,
+    );
   }
 
   @Delete(':projectId')
-  async delete(@Param('projectId', ParseIntPipe) projectId: number) {
-    await this.projectRepository.delete(projectId);
+  async delete(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @CurrentUser() user: JwtPayload['user'],
+  ) {
+    await this.projectRepository.deleteProjectWithHistory(projectId, user);
   }
 }
