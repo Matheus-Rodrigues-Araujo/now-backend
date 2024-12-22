@@ -8,6 +8,7 @@ import { Prisma, Project } from '@prisma/client';
 import { HistoryService } from 'src/history/history.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Action_Type, Entity_Type } from 'src/history/history.constants';
+import { JwtPayload } from 'src/types';
 
 @Injectable()
 export class ProjectRepository {
@@ -128,21 +129,65 @@ export class ProjectRepository {
   }
 
   async createProjectWithHistory(
-    userId: number,
-    firstName: string,
+    user: JwtPayload['user'],
     data: Prisma.ProjectCreateInput,
   ): Promise<Project> {
     return this.prismaService.$transaction(async (prisma) => {
       const project = await this.create(data);
       if (!project) throw new BadRequestException('Project not created');
 
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+
       await this.historyService.createHistory(userId, project.id, {
-        description: `${firstName} created project as admin: ${project.title}`,
+        description: `${userName} created project as admin: ${project.title}`,
         entityType: Entity_Type.PROJECT,
         actionType: Action_Type.CREATE,
       });
 
       return project;
+    });
+  }
+
+  async updateProjectWithHistory(
+    projectId: number,
+    user: JwtPayload['user'],
+    data: Prisma.ProjectUpdateInput,
+  ): Promise<Project> {
+    return this.prismaService.$transaction(async (prisma) => {
+      const project = await this.update(projectId, data);
+      if (!project) throw new BadRequestException('Project not updated');
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+
+      await this.historyService.createHistory(userId, projectId, {
+        description: `${userName} updated project: ${project.title}`,
+        entityType: Entity_Type.PROJECT,
+        actionType: Action_Type.UPDATE,
+      });
+
+      return project;
+    });
+  }
+
+  async deleteProjectWithHistory(
+    projectId: number,
+    user: JwtPayload['user'],
+  ): Promise<void> {
+    this.prismaService.$transaction(async (prisma) => {
+      const project = await this.delete(projectId);
+      if (!project) throw new BadRequestException('Project not deleted');
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+
+      await this.historyService.createHistory(userId, projectId, {
+        description: `${userName} deleted project with Id: ${projectId}`,
+        entityType: Entity_Type.PROJECT,
+        actionType: Action_Type.DELETE,
+      });
     });
   }
 
