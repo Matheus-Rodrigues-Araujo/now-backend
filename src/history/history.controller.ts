@@ -4,13 +4,10 @@ import {
   Param,
   ParseEnumPipe,
   ParseIntPipe,
-  Post,
   Query,
 } from '@nestjs/common';
 import { HistoryService } from './history.service';
-import { CurrentUser } from 'src/common/decorators';
-import { JwtPayload } from 'src/types';
-import { Entity_Type } from 'src/types';
+import { Entity_Type } from 'src/history/history.constants';
 import { History } from '@prisma/client';
 
 @Controller('history')
