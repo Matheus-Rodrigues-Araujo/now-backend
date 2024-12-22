@@ -3,9 +3,8 @@ import {
   IsInt,
   IsNotEmpty,
   IsEnum,
-  IsOptional,
 } from 'class-validator';
-import { Entity_Type, Action_Type } from 'src/types';
+import { Entity_Type, Action_Type } from 'src/history/history.constants';
 
 export class CreateHistoryDto {
   @IsString()

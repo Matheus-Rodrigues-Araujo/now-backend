@@ -7,7 +7,7 @@ import {
 import { Prisma, Project } from '@prisma/client';
 import { HistoryService } from 'src/history/history.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Action_Type, Entity_Type } from 'src/types';
+import { Action_Type, Entity_Type } from 'src/history/history.constants';
 
 @Injectable()
 export class ProjectRepository {
@@ -134,7 +134,7 @@ export class ProjectRepository {
   ): Promise<Project> {
     return this.prismaService.$transaction(async (prisma) => {
       const project = await this.create(data);
-      if(!project) throw new BadRequestException("Project not created")
+      if (!project) throw new BadRequestException('Project not created');
 
       await this.historyService.createHistory(userId, project.id, {
         description: `${firstName} created project as admin: ${project.title}`,

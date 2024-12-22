@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HistoryRepository } from './history.repository';
 import { CreateHistoryDto } from './dto';
 import { History } from '@prisma/client';
-import { Entity_Type } from 'src/types';
+import { Entity_Type } from 'src/history/history.constants';
 
 @Injectable()
 export class HistoryService {

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { History, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Entity_Type } from 'src/types';
+import { Entity_Type } from 'src/history/history.constants';
 
 @Injectable()
 export class HistoryRepository {
