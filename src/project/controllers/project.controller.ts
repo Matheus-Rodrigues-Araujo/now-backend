@@ -25,9 +25,7 @@ export class ProjectController {
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ) {
-    const userId = user.sub;
-    const firstName = user.firstName;
-    return await this.projectService.createAdminProject(userId, firstName, createProjectDto);
+    return await this.projectService.createAdminProject(user, createProjectDto);
   }
 
   @Get('find')
