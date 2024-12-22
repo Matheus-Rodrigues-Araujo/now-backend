@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MoveTaskDto, UpdateTaskDto, UpdateTaskOrderDto } from './dto';
+import { HistoryService } from 'src/history/history.service';
+import { Action_Type, Entity_Type, JwtPayload } from 'src/types';
 
 @Injectable()
 export class TaskRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private historyService: HistoryService,
+  ) {}
 
   async create(boardId: number, data: Prisma.TaskCreateInput): Promise<Task> {
     return await this.prismaService.task.create({ data });
@@ -68,5 +73,27 @@ export class TaskRepository {
 
   async delete(taskId: number): Promise<void> {
     await this.prismaService.task.delete({ where: { id: taskId } });
+  }
+
+  async createTaskWithHistory(
+    user: JwtPayload['user'],
+    boardId: number,
+    data: Prisma.TaskCreateInput,
+  ): Promise<Task> {
+    return this.prismaService.$transaction(async (prisma) => {
+      const task = await this.create(boardId, data);
+      if (!task) throw new BadRequestException('Task not created');
+
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+      await this.historyService.createHistory(userId, task.id, {
+        description: `${userName} created task: ${data.title}`,
+        entityType: Entity_Type.TASK,
+        actionType: Action_Type.CREATE,
+      });
+
+      return task;
+    });
   }
 }
