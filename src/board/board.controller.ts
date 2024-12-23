@@ -13,7 +13,7 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateBoardDto, UpdateBoardDto, UpdateBoardOrder } from './dto';
 import { BoardService } from './board.service';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 import { Board, Task } from '@prisma/client';
 import { CurrentUser } from 'src/common/decorators';
 import { ProjectGuard } from 'src/project/guards/project.guard';

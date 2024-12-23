@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, Project } from '@prisma/client';
 import { CreateProjectDto, FindProjectDto, UpdateProjectDto } from '../dto';
-import { FormattedProject, JwtPayload } from 'src/types';
+import { FormattedProject, JwtPayload } from 'src/common/interfaces';
 import { ProjectRepository } from '../project.repository';
 import { formatProject } from 'src/common/helpers';
 
@@ -51,7 +51,7 @@ export class ProjectService {
     };
   }
 
-  async createAdminProject(
+  async createProject(
     user: JwtPayload['user'],
     createProjectDto: CreateProjectDto,
   ): Promise<Project> {
@@ -63,18 +63,18 @@ export class ProjectService {
       createProjectDto,
     );
 
-    return await this.projecRepository.createProjectWithHistory(
+    return await this.projecRepository.createProject(
       user,
       projectData,
     );
   }
 
-  async updateProjectWithHistory(
+  async updateProject(
     projectId: number,
     user: JwtPayload['user'],
     updateProjectDto: UpdateProjectDto,
   ): Promise<Project> {
-    return this.projecRepository.updateProjectWithHistory(
+    return this.projecRepository.updateProject(
       projectId,
       user,
       updateProjectDto,

@@ -1,5 +1,5 @@
 import { IsString, IsObject, IsOptional } from 'class-validator';
-import { ThemeProps } from 'src/types';
+import { ThemeProps } from 'src/common/interfaces';
 
 export class UpdateBoardDto {
   @IsString()

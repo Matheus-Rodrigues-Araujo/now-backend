@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { FormattedProject } from 'src/types';
+import { FormattedProject } from 'src/common/interfaces';
 
 @Injectable()
 export class UserService {

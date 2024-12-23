@@ -8,7 +8,7 @@ import { Prisma, Project } from '@prisma/client';
 import { HistoryService } from 'src/history/history.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Action_Type, Entity_Type } from 'src/history/history.constants';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 
 @Injectable()
 export class ProjectRepository {
@@ -128,7 +128,7 @@ export class ProjectRepository {
     });
   }
 
-  async createProjectWithHistory(
+  async createProject(
     user: JwtPayload['user'],
     data: Prisma.ProjectCreateInput,
   ): Promise<Project> {
@@ -150,7 +150,7 @@ export class ProjectRepository {
     });
   }
 
-  async updateProjectWithHistory(
+  async updateProject(
     projectId: number,
     user: JwtPayload['user'],
     data: Prisma.ProjectUpdateInput,
@@ -172,7 +172,7 @@ export class ProjectRepository {
     });
   }
 
-  async deleteProjectWithHistory(
+  async deleteProject(
     projectId: number,
     user: JwtPayload['user'],
   ): Promise<void> {

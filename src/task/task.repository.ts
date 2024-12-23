@@ -3,7 +3,7 @@ import { Prisma, Task } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MoveTaskDto, UpdateTaskDto, UpdateTaskOrderDto } from './dto';
 import { HistoryService } from 'src/history/history.service';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 import { Action_Type, Entity_Type } from 'src/history/history.constants';
 
 @Injectable()
@@ -76,7 +76,7 @@ export class TaskRepository {
     await this.prismaService.task.delete({ where: { id: taskId } });
   }
 
-  async createTaskWithHistory(
+  async createTask(
     user: JwtPayload['user'],
     boardId: number,
     data: Prisma.TaskCreateInput,
@@ -97,4 +97,49 @@ export class TaskRepository {
       return task;
     });
   }
+
+  async updateTask(
+    taskId: number,
+    user: JwtPayload['user'],
+    data: Prisma.TaskUpdateInput,
+  ): Promise<Task> {
+    return this.prismaService.$transaction(async (prisma) => {
+      const task = await this.update(taskId, data);
+      if (!task) throw new BadRequestException('Task not updated');
+      
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+
+      await this.historyService.createHistory(userId, taskId, {
+        description: `${userName} updated task: ${task.title}`,
+        entityType: Entity_Type.TASK,
+        actionType: Action_Type.UPDATE,
+      });
+
+      return task;
+    });
+  }
+
+  async deleteTask(
+    taskId: number,
+    user: JwtPayload['user'],
+  ): Promise<void> {
+    this.prismaService.$transaction(async (prisma) => {
+      const task = await this.delete(taskId);
+
+      const { sub, firstName, lastName } = user;
+      const userId = sub;
+      const userName = firstName + ' ' + lastName;
+
+      await this.historyService.createHistory(userId, taskId, {
+        description: `${userName} deleted task with Id: ${taskId}`,
+        entityType: Entity_Type.TASK,
+        actionType: Action_Type.DELETE,
+      });
+    });
+  }
+
+
+
 }

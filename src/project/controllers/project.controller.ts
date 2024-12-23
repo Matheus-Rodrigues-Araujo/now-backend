@@ -11,7 +11,7 @@ import {
 import { ProjectGuard } from '../guards/project.guard';
 import { CreateProjectDto, FindProjectDto } from '../dto';
 import { ProjectService } from '../services/project.service';
-import { FormattedProject, JwtPayload } from 'src/types';
+import { FormattedProject, JwtPayload } from 'src/common/interfaces';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators';
 
@@ -21,11 +21,11 @@ export class ProjectController {
   constructor(private projectService: ProjectService) {}
 
   @Post()
-  async createAdminProject(
+  async createProject(
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
   ) {
-    return await this.projectService.createAdminProject(user, createProjectDto);
+    return await this.projectService.createProject(user, createProjectDto);
   }
 
   @Get('find')

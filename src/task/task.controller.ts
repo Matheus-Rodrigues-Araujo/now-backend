@@ -19,7 +19,7 @@ import { TaskService } from './task.service';
 import { ProjectAdminGuard } from 'src/project/guards/project-admin.guard';
 import { MoveTaskDto, UpdateTaskDto } from './dto';
 import { ProjectGuard } from 'src/project/guards/project.guard';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 import { CurrentUser } from 'src/common/decorators';
 
 @Controller('projects/:projectId/boards/:boardId/tasks')
@@ -34,20 +34,31 @@ export class TaskController {
     @Body() createTaskDto: CreateTaskDto,
     @CurrentUser() user: JwtPayload['user'],
   ): Promise<Task> {
-    return await this.taskService.createTaskWithHistory(
-      user,
-      boardId,
-      createTaskDto,
-    );
+    return await this.taskService.createTask(user, boardId, createTaskDto);
   }
 
   @Put(':taskId')
   @UseGuards(ProjectAdminGuard)
   async updateTask(
-    @Param('taskId', ParseIntPipe) boardId: number,
-    @Body() updateTaskDto: UpdateTaskDto,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @Body() updateTaskPayload: { data: UpdateTaskDto },
+    @CurrentUser() user: JwtPayload['user'],
   ): Promise<Task> {
-    return await this.taskService.updateTask(boardId, updateTaskDto);
+    return await this.taskService.updateTask(
+      taskId,
+      user,
+      updateTaskPayload.data,
+    );
+  }
+
+  @Delete(':taskId')
+  @UseGuards(ProjectAdminGuard)
+  async deleteTask(
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('taskId', ParseIntPipe) taskId: number,
+    @CurrentUser() user: JwtPayload['user'],
+  ): Promise<void> {
+    await this.taskService.deleteTask(boardId, taskId, user);
   }
 
   @Patch('move/:taskId')
@@ -58,14 +69,5 @@ export class TaskController {
     @Body() moveTaskDto: MoveTaskDto,
   ): Promise<Task> {
     return await this.taskService.moveTaskToBoard(boardId, taskId, moveTaskDto);
-  }
-
-  @Delete(':taskId')
-  @UseGuards(ProjectAdminGuard)
-  async deleteTask(
-    @Param('boardId', ParseIntPipe) boardId: number,
-    @Param('taskId', ParseIntPipe) taskId: number,
-  ): Promise<void> {
-    await this.taskService.deleteTask(boardId, taskId);
   }
 }

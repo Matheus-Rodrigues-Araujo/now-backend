@@ -1,4 +1,4 @@
-import { ProjectModel, FormattedProject } from 'src/types';
+import { ProjectModel, FormattedProject } from 'src/common/interfaces';
 
 export function formatProject(
   project: ProjectModel,

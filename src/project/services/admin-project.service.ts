@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { formatProject } from 'src/common/helpers';
-import { FormattedProject } from 'src/types';
+import { FormattedProject } from 'src/common/interfaces';
 import { UpdateProjectDto } from '../dto';
 import { ProjectRepository } from '../project.repository';
 

@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 import { UserService } from './user.service';
 import { CurrentUser } from 'src/common/decorators';
 

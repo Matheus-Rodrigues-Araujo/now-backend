@@ -8,7 +8,7 @@ import { Prisma, Task } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { MoveTaskDto } from './dto';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from 'src/common/interfaces';
 
 @Injectable()
 export class TaskService {
@@ -34,20 +34,27 @@ export class TaskService {
     };
   }
 
-  async createTaskWithHistory(
+  async createTask(
     user: JwtPayload['user'],
     boardId: number,
     createTaskDto: CreateTaskDto,
   ): Promise<Task> {
     const taskData = this.prepareTaskCreationData(boardId, createTaskDto);
-    return this.taskRepository.createTaskWithHistory(user, boardId, taskData);
+    return this.taskRepository.createTask(user, boardId, taskData);
   }
 
   async updateTask(
     taskId: number,
+    user: JwtPayload['user'],
     updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
-    return await this.taskRepository.update(taskId, updateTaskDto);
+    return await this.taskRepository.updateTask(taskId, user, updateTaskDto);
+  }
+
+  async deleteTask(boardId: number, taskId: number, user: JwtPayload['user']): Promise<void> {
+    const task = await this.taskRepository.findById(boardId, taskId);
+    if (!task) throw new NotFoundException('Task not found in this board');
+    await this.taskRepository.deleteTask(taskId, user);
   }
 
   async moveTaskToBoard(
@@ -60,11 +67,5 @@ export class TaskService {
       taskId,
       moveTaskDto,
     );
-  }
-
-  async deleteTask(boardId: number, taskId: number): Promise<void> {
-    const task = await this.taskRepository.findById(boardId, taskId);
-    if (!task) throw new NotFoundException('Task not found in this board');
-    await this.taskRepository.delete(taskId);
   }
 }
