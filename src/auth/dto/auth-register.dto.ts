@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { AuthLogin } from './auth-login.dto';
+import { AuthLoginDto } from './auth-login.dto';
 
-export class AuthRegister extends AuthLogin {
+export class AuthRegisterDto extends AuthLoginDto {
   @IsString()
   @IsNotEmpty()
   firstName: string;
