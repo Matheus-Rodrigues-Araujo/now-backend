@@ -35,6 +35,7 @@ export class BoardService {
 
   async findBoardsFromProject(projectId: number): Promise<Board[]> {
     const boards = await this.boardRepository.findBoardsFromProject(projectId);
+    if (!boards) throw new NotFoundException('Project has no boards');
     return boards;
   }
 
@@ -45,7 +46,12 @@ export class BoardService {
   }
 
   async findAllBoardTasks(boardId: number, projectId: number): Promise<Task[]> {
-    return await this.boardRepository.findAllBoardTasks(boardId, projectId);
+    const boardTasks = await this.boardRepository.findAllBoardTasks(
+      boardId,
+      projectId,
+    );
+    if (!boardTasks) throw new NotFoundException("Board don't have any task");
+    return boardTasks;
   }
 
   async findBoardsWithTasks(
@@ -85,7 +91,12 @@ export class BoardService {
     projectId: number,
     boards: UpdateBoardOrder[],
   ): Promise<Board[]> {
-    return await this.boardRepository.updateOrder(projectId, boards);
+    const boardsOrder = await this.boardRepository.updateOrder(
+      projectId,
+      boards,
+    );
+    if (!boardsOrder) throw new BadRequestException('Board(s) order updated');
+    return boardsOrder;
   }
 
   async deleteBoard(boardId: number, projectId: number): Promise<void> {
