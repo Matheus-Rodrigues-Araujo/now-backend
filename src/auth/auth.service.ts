@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -26,7 +30,7 @@ export class AuthService {
       const verifyHash = await argon2.verify(userExists.hash, hash);
       if (!verifyHash) throw new UnauthorizedException('Invalid password!');
 
-      const payload:JwtPayload = {
+      const payload: JwtPayload = {
         user: {
           firstName: userExists.firstName,
           lastName: userExists.lastName || '',
@@ -37,8 +41,7 @@ export class AuthService {
 
       return { access_token };
     } catch (error) {
-      console.error('ERROR: user login', error);
-      throw error;
+      throw new BadRequestException('Could not sign in');
     }
   }
 
@@ -51,7 +54,7 @@ export class AuthService {
 
       if (userExists)
         throw new UnauthorizedException(
-          'User already exists. Please, create other email or recover your password',
+          'A user account with the provided email or username already exists.',
         );
 
       const hashedPassword = await argon2.hash(hash);
@@ -71,8 +74,7 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      console.error('ERROR: user registration', error);
-      throw error;
+      throw new BadRequestException('Could not sign up');
     }
   }
 }
