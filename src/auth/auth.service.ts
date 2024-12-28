@@ -3,7 +3,7 @@ import { User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthLogin, AuthRegister } from './dto';
+import { AuthLoginDto, AuthRegisterDto } from './dto';
 import { JwtPayload } from 'src/common/interfaces';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(authLogin: AuthLogin): Promise<{ access_token: string }> {
+  async login(authLogin: AuthLoginDto): Promise<{ access_token: string }> {
     try {
       const { email, hash } = authLogin;
 
@@ -42,7 +42,7 @@ export class AuthService {
     }
   }
 
-  async register(authRegister: AuthRegister): Promise<User> {
+  async register(authRegister: AuthRegisterDto): Promise<User> {
     try {
       const { email, firstName, lastName, hash } = authRegister;
       const userExists = await this.prismaService.user.findUnique({
