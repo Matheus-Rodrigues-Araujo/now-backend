@@ -105,8 +105,7 @@ export class TaskRepository {
   ): Promise<Task> {
     return this.prismaService.$transaction(async (prisma) => {
       const task = await this.update(taskId, data);
-      if (!task) throw new BadRequestException('Task not updated');
-      
+
       const { sub, firstName, lastName } = user;
       const userId = sub;
       const userName = firstName + ' ' + lastName;
@@ -121,10 +120,7 @@ export class TaskRepository {
     });
   }
 
-  async deleteTask(
-    taskId: number,
-    user: JwtPayload['user'],
-  ): Promise<void> {
+  async deleteTask(taskId: number, user: JwtPayload['user']): Promise<void> {
     this.prismaService.$transaction(async (prisma) => {
       const task = await this.delete(taskId);
 
@@ -139,7 +135,4 @@ export class TaskRepository {
       });
     });
   }
-
-
-
 }
