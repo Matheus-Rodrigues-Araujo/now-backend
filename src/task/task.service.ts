@@ -48,10 +48,21 @@ export class TaskService {
     user: JwtPayload['user'],
     updateTaskDto: UpdateTaskDto,
   ): Promise<Task> {
-    return await this.taskRepository.updateTask(taskId, user, updateTaskDto);
+    const task = await this.taskRepository.updateTask(
+      taskId,
+      user,
+      updateTaskDto,
+    );
+    if (!task) throw new BadRequestException('Task not updated');
+
+    return task;
   }
 
-  async deleteTask(boardId: number, taskId: number, user: JwtPayload['user']): Promise<void> {
+  async deleteTask(
+    boardId: number,
+    taskId: number,
+    user: JwtPayload['user'],
+  ): Promise<void> {
     const task = await this.taskRepository.findById(boardId, taskId);
     if (!task) throw new NotFoundException('Task not found in this board');
     await this.taskRepository.deleteTask(taskId, user);
