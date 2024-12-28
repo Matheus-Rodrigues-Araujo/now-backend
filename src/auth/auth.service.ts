@@ -24,11 +24,12 @@ export class AuthService {
       const userExists = await this.prismaService.user.findUnique({
         where: { email },
       });
-      if (!userExists)
-        throw new UnauthorizedException('Invalid email or password');
 
       const verifyHash = await argon2.verify(userExists.hash, hash);
-      if (!verifyHash) throw new UnauthorizedException('Invalid password!');
+
+      if (!userExists || !verifyHash) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
 
       const payload: JwtPayload = {
         user: {
@@ -59,7 +60,7 @@ export class AuthService {
 
       const hashedPassword = await argon2.hash(hash);
 
-      const user = await this.prismaService.user.create({
+      return await this.prismaService.user.create({
         data: {
           email: authRegister.email,
           firstName,
@@ -67,14 +68,8 @@ export class AuthService {
           hash: hashedPassword,
         },
       });
-
-      if (!user) {
-        throw new UnauthorizedException('User creation failed');
-      }
-
-      return user;
     } catch (error) {
-      throw new BadRequestException('Could not sign up');
+      throw new BadRequestException('User not registered');
     }
   }
 }
