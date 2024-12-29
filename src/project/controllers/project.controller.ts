@@ -14,6 +14,11 @@ import { ProjectService } from '../services/project.service';
 import { FormattedProject, JwtPayload } from 'src/common/interfaces';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/common/decorators';
+import {
+  CreateProjectSwagger,
+  FindMembersSwagger,
+  FindProjectSwagger,
+} from '../swagger/project';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -21,6 +26,9 @@ export class ProjectController {
   constructor(private projectService: ProjectService) {}
 
   @Post()
+  @CreateProjectSwagger.operation
+  @CreateProjectSwagger.okResponse
+  @CreateProjectSwagger.badRequest
   async createProject(
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: JwtPayload['user'],
@@ -29,6 +37,10 @@ export class ProjectController {
   }
 
   @Get('find')
+  @FindProjectSwagger.operation
+  @FindProjectSwagger.okResponse
+  @FindProjectSwagger.badRequest
+  @FindProjectSwagger.notFound
   @UseGuards(ProjectGuard)
   async findProjectByIdOrTitle(
     @Query() query: FindProjectDto,
@@ -38,8 +50,12 @@ export class ProjectController {
     return await this.projectService.findProjectByIdOrTitle(query, userId);
   }
 
-  @Get(':projectId/users')
+  @Get(':projectId/members')
   @UseGuards(ProjectGuard)
+  @FindMembersSwagger.operation
+  @FindMembersSwagger.okResponse
+  @FindMembersSwagger.badRequest
+  @FindMembersSwagger.notFound
   async findProjectMembers(
     @Param('projectId', ParseIntPipe) projectId: number,
   ) {
