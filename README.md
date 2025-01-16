@@ -1,16 +1,18 @@
 # Now API
 
-![Now API](https://img.shields.io/badge/Node.js-v16.17.0-green)
-![NestJS](https://img.shields.io/badge/NestJS-v9.0.0-red)
-![TypeScript](https://img.shields.io/badge/TypeScript-v5.0-blue)
+![Now API](https://img.shields.io/badge/Node.js-green)
+![NestJS](https://img.shields.io/badge/NestJS-red)
+![TypeScript](https://img.shields.io/badge/TypeScript-blue)
+![TypeScript](https://img.shields.io/badge/Prisma-black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.0-blue)
+![Docker](https://img.shields.io/badge/Docker-blue)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
 ## 📖 Sobre
 
-A **Now API** é uma solução RESTful desenvolvida para gerenciar e monitorar atividades e processos organizacionais e pessoais de forma eficiente. Ela fornece endpoints para criar, atualizar, organizar e visualizar tarefas em um estilo Kanban. 
+A **Now API** é uma solução RESTful desenvolvida para gerenciar e monitorar atividades e processos organizacionais e pessoais de forma eficiente. Ela fornece endpoints para criar, atualizar, organizar e visualizar tarefas em um estilo Kanban.
 
-Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma** como ORM, a API segue princípios de **SOLID** e utiliza **Design Patterns** para garantir escalabilidade, manutenção e robustez. 
+Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma** como ORM, a API segue princípios de **SOLID** e utiliza **Design Patterns** para garantir escalabilidade, manutenção e robustez.
 
 ---
 
@@ -19,7 +21,8 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
 - **Node.js**: Plataforma de execução JavaScript.
 - **NestJS**: Framework para criação de aplicações escaláveis e estruturadas.
 - **TypeScript**: Superset do JavaScript com tipagem estática.
-- **Prisma ORM**: Abstração para modelagem e manipulação do banco de dados.
+- **Prisma (ORM)**: Abstração para modelagem e manipulação do banco de dados.
+- **Docker**: Contêineres para facilitar a criação, execução e implantação da aplicação em qualquer ambiente.
 - **PostgreSQL**: Banco de dados relacional.
 - **Swagger**: Documentação interativa de APIs.
 - **Postman**: Teste de endpoints.
@@ -27,9 +30,12 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
 ---
 
 ## ⚙️ Funcionalidades
+
 - **Gestão de áreas de trabalho**:
   - Criar, editar e excluir áreas de trabalho.
   - Organização da ordem para dar mais prioridades
+  - **Gestão de Projetos**:
+  - Criar, editar e excluir projetos.
   - Adição de novos membros para acessos personalizados
 - **Gestão de tarefas**:
   - Criar, editar e excluir tarefas.
@@ -60,7 +66,7 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
    npm install
    ```
 4. Configure as variáveis de ambiente:
-   Crie um arquivo `.env` na raiz do projeto com os seguintes parâmetros:
+   Crie um arquivo `.env` ou `.env.test.local` na raiz do projeto com os seguintes parâmetros:
    ```env
    DATABASE_URL=postgresql://user:password@localhost:5432/kanban_db
    JWT_SECRET=sua-chave-secreta
@@ -81,20 +87,26 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
 A documentação completa está disponível através do **Swagger**. Após iniciar o servidor, acesse:
 
 ```
-http://localhost:3000/api
+http://localhost:8000/api
 ```
 
 Lá você encontrará detalhes de cada endpoint, incluindo métodos, parâmetros e exemplos de resposta.
 
+### Imagens do Swagger
+![alt text](swagger1.PNG)
+![alt text](swagger2.PNG)
+![alt text](swagger3.PNG)
 ---
 
 ## 🧪 Testes
 
 Para testar os endpoints, você pode usar o **Postman** ou qualquer cliente HTTP de sua preferência.
 
-1. Importe o arquivo de coleção Postman disponível em `postman/kanban-api-collection.json`.
-2. Configure o ambiente no Postman (se necessário).
+1. Configure o ambiente no Postman (se necessário).
+2. Adicione as rotas de cada Controller.
 3. Execute os testes e valide os endpoints.
+
+OBS: Lembre de inserir o Bearer Token para determinadas rotas com permissão de membro ou admin
 
 ---
 
@@ -150,16 +162,10 @@ Contribuições são bem-vindas! Siga os passos abaixo para colaborar:
 
 ---
 
-## 📄 Licença
-
-Este projeto está licenciado sob a licença **MIT**. Veja o arquivo `LICENSE` para mais detalhes.
-
----
 
 ## ✨ Contato
 
-Matheus - [LinkedIn](https://www.linkedin.com/in/seu-perfil) | [GitHub](https://github.com/seu-usuario)
-
+Matheus Rodrigues Araujo - [LinkedIn](https://www.linkedin.com/in/matheus-rodrigues-araujo/) | [GitHub](https://github.com/Matheus-Rodrigues-Araujo)
 
 ## Project setup
 
@@ -180,12 +186,8 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Stay in touch
+## 📄 Licença
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Este projeto está licenciado sob a licença **MIT**. Veja o arquivo `LICENSE` para mais detalhes.
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
