@@ -68,6 +68,10 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
 4. Configure as variáveis de ambiente:
    Crie um arquivo `.env` ou `.env.test.local` na raiz do projeto com os seguintes parâmetros:
    ```env
+   PORT=5434
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=password
+   POSTGRES_DB=nest
    DATABASE_URL=postgresql://user:password@localhost:5432/kanban_db
    JWT_SECRET=sua-chave-secreta
    ```
@@ -93,9 +97,11 @@ http://localhost:8000/api
 Lá você encontrará detalhes de cada endpoint, incluindo métodos, parâmetros e exemplos de resposta.
 
 ### Imagens do Swagger
+
 ![alt text](swagger1.PNG)
 ![alt text](swagger2.PNG)
 ![alt text](swagger3.PNG)
+
 ---
 
 ## 🧪 Testes
@@ -161,7 +167,6 @@ Contribuições são bem-vindas! Siga os passos abaixo para colaborar:
 5. Abra um Pull Request.
 
 ---
-
 
 ## ✨ Contato
 
