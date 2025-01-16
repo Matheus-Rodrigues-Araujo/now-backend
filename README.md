@@ -1,30 +1,165 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Now API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![Now API](https://img.shields.io/badge/Node.js-v16.17.0-green)
+![NestJS](https://img.shields.io/badge/NestJS-v9.0.0-red)
+![TypeScript](https://img.shields.io/badge/TypeScript-v5.0-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.0-blue)
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📖 Sobre
 
-## Description
+A **Now API** é uma solução RESTful desenvolvida para gerenciar e monitorar atividades e processos organizacionais e pessoais de forma eficiente. Ela fornece endpoints para criar, atualizar, organizar e visualizar tarefas em um estilo Kanban. 
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma** como ORM, a API segue princípios de **SOLID** e utiliza **Design Patterns** para garantir escalabilidade, manutenção e robustez. 
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+- **Node.js**: Plataforma de execução JavaScript.
+- **NestJS**: Framework para criação de aplicações escaláveis e estruturadas.
+- **TypeScript**: Superset do JavaScript com tipagem estática.
+- **Prisma ORM**: Abstração para modelagem e manipulação do banco de dados.
+- **PostgreSQL**: Banco de dados relacional.
+- **Swagger**: Documentação interativa de APIs.
+- **Postman**: Teste de endpoints.
+
+---
+
+## ⚙️ Funcionalidades
+- **Gestão de áreas de trabalho**:
+  - Criar, editar e excluir áreas de trabalho.
+  - Organização da ordem para dar mais prioridades
+  - Adição de novos membros para acessos personalizados
+- **Gestão de tarefas**:
+  - Criar, editar e excluir tarefas.
+  - Atualizar status de tarefas (To Do, In Progress, Done).
+- **Gestão de usuários**:
+  - Registro e autenticação.
+  - Autorização personalizada e protegida para recursos sensíveis.
+  - Atribuição de tarefas.
+- **Monitoramento de processos**:
+  - Visualização de tarefas agrupadas por status.
+  - Armazenamento de logs para facilitar monitoramento.
+  - Histórico de alterações.
+
+---
+
+## 🛠️ Instalação e Configuração
+
+1. Clone este repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/kanban-api.git
+   ```
+2. Acesse o diretório do projeto:
+   ```bash
+   cd kanban-api
+   ```
+3. Instale as dependências:
+   ```bash
+   npm install
+   ```
+4. Configure as variáveis de ambiente:
+   Crie um arquivo `.env` na raiz do projeto com os seguintes parâmetros:
+   ```env
+   DATABASE_URL=postgresql://user:password@localhost:5432/kanban_db
+   JWT_SECRET=sua-chave-secreta
+   ```
+5. Execute as migrations do Prisma:
+   ```bash
+   npx prisma migrate dev
+   ```
+6. Inicie o servidor:
+   ```bash
+   npm run start:dev
+   ```
+
+---
+
+## 📚 Documentação da API
+
+A documentação completa está disponível através do **Swagger**. Após iniciar o servidor, acesse:
+
+```
+http://localhost:3000/api
+```
+
+Lá você encontrará detalhes de cada endpoint, incluindo métodos, parâmetros e exemplos de resposta.
+
+---
+
+## 🧪 Testes
+
+Para testar os endpoints, você pode usar o **Postman** ou qualquer cliente HTTP de sua preferência.
+
+1. Importe o arquivo de coleção Postman disponível em `postman/kanban-api-collection.json`.
+2. Configure o ambiente no Postman (se necessário).
+3. Execute os testes e valide os endpoints.
+
+---
+
+## 🧩 Estrutura do Projeto
+
+A API segue uma arquitetura modular, promovendo organização e escalabilidade.
+
+```bash
+src
+├── modules
+│   ├── auth        # Módulo de autenticação
+│   ├── board       # Módulo de boards
+│   ├── history     # Módulo do histórico
+│   ├── task        # Módulo de tarefas
+│   ├── prisma      # Módulo do Prisma
+│   ├── prisma      # Módulo de projeto
+│   ├── task        # Módulo de tarefas
+│   └── user        # Módulo de usuários
+├── common          # Componentes compartilhados (filtros, interceptors, decorators, interfaces, etc.)
+├── prisma          # Configuração e client do Prisma
+├── app.module.ts   # Módulo principal da aplicação
+└── main.ts         # Ponto de entrada da aplicação
+```
+
+---
+
+## 📌 Princípios de Desenvolvimento
+
+- **SOLID**: Garantindo código modular e extensível.
+- **Design Patterns**: Utilização de padrões como Repository e Service.
+- **Clean Code**: Código limpo, legível e de fácil manutenção.
+
+---
+
+## 🤝 Contribuições
+
+Contribuições são bem-vindas! Siga os passos abaixo para colaborar:
+
+1. Faça um fork do projeto.
+2. Crie uma branch para sua feature/bugfix:
+   ```bash
+   git checkout -b feature/nova-feature
+   ```
+3. Faça o commit das suas alterações:
+   ```bash
+   git commit -m "Descrição da feature"
+   ```
+4. Envie para o repositório remoto:
+   ```bash
+   git push origin feature/nova-feature
+   ```
+5. Abra um Pull Request.
+
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob a licença **MIT**. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+## ✨ Contato
+
+Matheus - [LinkedIn](https://www.linkedin.com/in/seu-perfil) | [GitHub](https://github.com/seu-usuario)
+
 
 ## Project setup
 
@@ -44,35 +179,6 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
 ## Stay in touch
 
