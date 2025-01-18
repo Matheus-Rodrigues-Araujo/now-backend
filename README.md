@@ -55,11 +55,11 @@ Desenvolvida com **TypeScript**, **Node.js**, **NestJS** e utilizando **Prisma**
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/seu-usuario/kanban-api.git
+   git clone https://github.com/Matheus-Rodrigues-Araujo/now-backend.git
    ```
 2. Acesse o diretório do projeto:
    ```bash
-   cd kanban-api
+   cd now-backend
    ```
 3. Instale as dependências:
    ```bash
@@ -127,12 +127,12 @@ src
 │   ├── board       # Módulo de boards
 │   ├── history     # Módulo do histórico
 │   ├── task        # Módulo de tarefas
-│   ├── prisma      # Módulo do Prisma
+│   ├── prisma      # Módulo do Prisma (PrismaService)
 │   ├── prisma      # Módulo de projeto
 │   ├── task        # Módulo de tarefas
 │   └── user        # Módulo de usuários
 ├── common          # Componentes compartilhados (filtros, interceptors, decorators, interfaces, etc.)
-├── prisma          # Configuração e client do Prisma
+├── prisma          # Modelagem e migrations do Prisma
 ├── app.module.ts   # Módulo principal da aplicação
 └── main.ts         # Ponto de entrada da aplicação
 ```
